@@ -18,8 +18,6 @@
 		493CB30F2AE59C3700BBC27B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 493CB30E2AE59C3700BBC27B /* Assets.xcassets */; };
 		493CB3172AE59C3700BBC27B /* Alexandria Extension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 493CB3162AE59C3700BBC27B /* Alexandria Extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		493CB31C2AE59C3700BBC27B /* SafariExtensionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 493CB31B2AE59C3700BBC27B /* SafariExtensionHandler.swift */; };
-		493CB31E2AE59C3700BBC27B /* SafariExtensionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 493CB31D2AE59C3700BBC27B /* SafariExtensionViewController.swift */; };
-		493CB3262AE59C3700BBC27B /* SafariExtensionViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 493CB3242AE59C3700BBC27B /* SafariExtensionViewController.xib */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -60,8 +58,6 @@
 		493CB3102AE59C3700BBC27B /* Alexandria.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Alexandria.entitlements; sourceTree = "<group>"; };
 		493CB3162AE59C3700BBC27B /* Alexandria Extension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "Alexandria Extension.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
 		493CB31B2AE59C3700BBC27B /* SafariExtensionHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SafariExtensionHandler.swift; sourceTree = "<group>"; };
-		493CB31D2AE59C3700BBC27B /* SafariExtensionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SafariExtensionViewController.swift; sourceTree = "<group>"; };
-		493CB3252AE59C3700BBC27B /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/SafariExtensionViewController.xib; sourceTree = "<group>"; };
 		493CB3272AE59C3700BBC27B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		493CB3282AE59C3700BBC27B /* Alexandria_Extension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Alexandria_Extension.entitlements; sourceTree = "<group>"; };
 		49CACFEE2AE6ED78002B406E /* index.ts */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.typescript; name = index.ts; path = "Alexandria Viewer/src/index.ts"; sourceTree = SOURCE_ROOT; };
@@ -131,8 +127,6 @@
 			isa = PBXGroup;
 			children = (
 				493CB31B2AE59C3700BBC27B /* SafariExtensionHandler.swift */,
-				493CB31D2AE59C3700BBC27B /* SafariExtensionViewController.swift */,
-				493CB3242AE59C3700BBC27B /* SafariExtensionViewController.xib */,
 				493CB3282AE59C3700BBC27B /* Alexandria_Extension.entitlements */,
 				493CB3272AE59C3700BBC27B /* Info.plist */,
 				493CB31F2AE59C3700BBC27B /* Resources */,
@@ -244,7 +238,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				492B73C52AE6E73A00E3C4AC /* main.js in Resources */,
-				493CB3262AE59C3700BBC27B /* SafariExtensionViewController.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -264,7 +257,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				493CB31E2AE59C3700BBC27B /* SafariExtensionViewController.swift in Sources */,
 				493CB31C2AE59C3700BBC27B /* SafariExtensionHandler.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -294,14 +286,6 @@
 				493CB30C2AE59C3600BBC27B /* Base */,
 			);
 			name = Main.storyboard;
-			sourceTree = "<group>";
-		};
-		493CB3242AE59C3700BBC27B /* SafariExtensionViewController.xib */ = {
-			isa = PBXVariantGroup;
-			children = (
-				493CB3252AE59C3700BBC27B /* Base */,
-			);
-			name = SafariExtensionViewController.xib;
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */
