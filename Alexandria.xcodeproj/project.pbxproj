@@ -1,0 +1,595 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		492B73C52AE6E73A00E3C4AC /* main.js in Resources */ = {isa = PBXBuildFile; fileRef = 492B73C42AE6E73A00E3C4AC /* main.js */; };
+		493CB2FE2AE59C3600BBC27B /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 493CB2FD2AE59C3600BBC27B /* AppDelegate.swift */; };
+		493CB3022AE59C3600BBC27B /* Main.html in Resources */ = {isa = PBXBuildFile; fileRef = 493CB3002AE59C3600BBC27B /* Main.html */; };
+		493CB3042AE59C3600BBC27B /* Icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 493CB3032AE59C3600BBC27B /* Icon.png */; };
+		493CB3062AE59C3600BBC27B /* Style.css in Resources */ = {isa = PBXBuildFile; fileRef = 493CB3052AE59C3600BBC27B /* Style.css */; };
+		493CB3082AE59C3600BBC27B /* Script.js in Resources */ = {isa = PBXBuildFile; fileRef = 493CB3072AE59C3600BBC27B /* Script.js */; };
+		493CB30A2AE59C3600BBC27B /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 493CB3092AE59C3600BBC27B /* ViewController.swift */; };
+		493CB30D2AE59C3600BBC27B /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 493CB30B2AE59C3600BBC27B /* Main.storyboard */; };
+		493CB30F2AE59C3700BBC27B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 493CB30E2AE59C3700BBC27B /* Assets.xcassets */; };
+		493CB3172AE59C3700BBC27B /* Alexandria Extension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 493CB3162AE59C3700BBC27B /* Alexandria Extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		493CB31C2AE59C3700BBC27B /* SafariExtensionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 493CB31B2AE59C3700BBC27B /* SafariExtensionHandler.swift */; };
+		493CB31E2AE59C3700BBC27B /* SafariExtensionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 493CB31D2AE59C3700BBC27B /* SafariExtensionViewController.swift */; };
+		493CB3262AE59C3700BBC27B /* SafariExtensionViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 493CB3242AE59C3700BBC27B /* SafariExtensionViewController.xib */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		493CB3182AE59C3700BBC27B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 493CB2F22AE59C3600BBC27B /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 493CB3152AE59C3700BBC27B;
+			remoteInfo = "Alexandria Extension";
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		493CB32E2AE59C3700BBC27B /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				493CB3172AE59C3700BBC27B /* Alexandria Extension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		492B73C42AE6E73A00E3C4AC /* main.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = main.js; path = "Alexandria Viewer/dist/main.js"; sourceTree = SOURCE_ROOT; };
+		493CB2FA2AE59C3600BBC27B /* Alexandria.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Alexandria.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		493CB2FD2AE59C3600BBC27B /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		493CB3012AE59C3600BBC27B /* Base */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = Base; path = ../Base.lproj/Main.html; sourceTree = "<group>"; };
+		493CB3032AE59C3600BBC27B /* Icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Icon.png; sourceTree = "<group>"; };
+		493CB3052AE59C3600BBC27B /* Style.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = Style.css; sourceTree = "<group>"; };
+		493CB3072AE59C3600BBC27B /* Script.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = Script.js; sourceTree = "<group>"; };
+		493CB3092AE59C3600BBC27B /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		493CB30C2AE59C3600BBC27B /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		493CB30E2AE59C3700BBC27B /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		493CB3102AE59C3700BBC27B /* Alexandria.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Alexandria.entitlements; sourceTree = "<group>"; };
+		493CB3162AE59C3700BBC27B /* Alexandria Extension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "Alexandria Extension.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
+		493CB31B2AE59C3700BBC27B /* SafariExtensionHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SafariExtensionHandler.swift; sourceTree = "<group>"; };
+		493CB31D2AE59C3700BBC27B /* SafariExtensionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SafariExtensionViewController.swift; sourceTree = "<group>"; };
+		493CB3252AE59C3700BBC27B /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/SafariExtensionViewController.xib; sourceTree = "<group>"; };
+		493CB3272AE59C3700BBC27B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		493CB3282AE59C3700BBC27B /* Alexandria_Extension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Alexandria_Extension.entitlements; sourceTree = "<group>"; };
+		49CACFEE2AE6ED78002B406E /* index.ts */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.typescript; name = index.ts; path = "Alexandria Viewer/src/index.ts"; sourceTree = SOURCE_ROOT; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		493CB2F72AE59C3600BBC27B /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		493CB3132AE59C3700BBC27B /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		493CB2F12AE59C3600BBC27B = {
+			isa = PBXGroup;
+			children = (
+				493CB2FC2AE59C3600BBC27B /* Alexandria */,
+				493CB31A2AE59C3700BBC27B /* Alexandria Extension */,
+				493CB2FB2AE59C3600BBC27B /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		493CB2FB2AE59C3600BBC27B /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				493CB2FA2AE59C3600BBC27B /* Alexandria.app */,
+				493CB3162AE59C3700BBC27B /* Alexandria Extension.appex */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		493CB2FC2AE59C3600BBC27B /* Alexandria */ = {
+			isa = PBXGroup;
+			children = (
+				493CB2FD2AE59C3600BBC27B /* AppDelegate.swift */,
+				493CB3092AE59C3600BBC27B /* ViewController.swift */,
+				493CB30B2AE59C3600BBC27B /* Main.storyboard */,
+				493CB30E2AE59C3700BBC27B /* Assets.xcassets */,
+				493CB3102AE59C3700BBC27B /* Alexandria.entitlements */,
+				493CB2FF2AE59C3600BBC27B /* Resources */,
+			);
+			path = Alexandria;
+			sourceTree = "<group>";
+		};
+		493CB2FF2AE59C3600BBC27B /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				493CB3002AE59C3600BBC27B /* Main.html */,
+				493CB3032AE59C3600BBC27B /* Icon.png */,
+				493CB3052AE59C3600BBC27B /* Style.css */,
+				493CB3072AE59C3600BBC27B /* Script.js */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		493CB31A2AE59C3700BBC27B /* Alexandria Extension */ = {
+			isa = PBXGroup;
+			children = (
+				493CB31B2AE59C3700BBC27B /* SafariExtensionHandler.swift */,
+				493CB31D2AE59C3700BBC27B /* SafariExtensionViewController.swift */,
+				493CB3242AE59C3700BBC27B /* SafariExtensionViewController.xib */,
+				493CB3282AE59C3700BBC27B /* Alexandria_Extension.entitlements */,
+				493CB3272AE59C3700BBC27B /* Info.plist */,
+				493CB31F2AE59C3700BBC27B /* Resources */,
+			);
+			path = "Alexandria Extension";
+			sourceTree = "<group>";
+		};
+		493CB31F2AE59C3700BBC27B /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				49CACFEE2AE6ED78002B406E /* index.ts */,
+				492B73C42AE6E73A00E3C4AC /* main.js */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		493CB2F92AE59C3600BBC27B /* Alexandria */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 493CB32F2AE59C3700BBC27B /* Build configuration list for PBXNativeTarget "Alexandria" */;
+			buildPhases = (
+				493CB2F62AE59C3600BBC27B /* Sources */,
+				493CB2F72AE59C3600BBC27B /* Frameworks */,
+				493CB2F82AE59C3600BBC27B /* Resources */,
+				493CB32E2AE59C3700BBC27B /* Embed Foundation Extensions */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				493CB3192AE59C3700BBC27B /* PBXTargetDependency */,
+			);
+			name = Alexandria;
+			productName = Alexandria;
+			productReference = 493CB2FA2AE59C3600BBC27B /* Alexandria.app */;
+			productType = "com.apple.product-type.application";
+		};
+		493CB3152AE59C3700BBC27B /* Alexandria Extension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 493CB32B2AE59C3700BBC27B /* Build configuration list for PBXNativeTarget "Alexandria Extension" */;
+			buildPhases = (
+				493CB3122AE59C3700BBC27B /* Sources */,
+				493CB3132AE59C3700BBC27B /* Frameworks */,
+				493CB3142AE59C3700BBC27B /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "Alexandria Extension";
+			productName = "Alexandria Extension";
+			productReference = 493CB3162AE59C3700BBC27B /* Alexandria Extension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		493CB2F22AE59C3600BBC27B /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1500;
+				LastUpgradeCheck = 1500;
+				TargetAttributes = {
+					493CB2F92AE59C3600BBC27B = {
+						CreatedOnToolsVersion = 15.0.1;
+					};
+					493CB3152AE59C3700BBC27B = {
+						CreatedOnToolsVersion = 15.0.1;
+					};
+				};
+			};
+			buildConfigurationList = 493CB2F52AE59C3600BBC27B /* Build configuration list for PBXProject "Alexandria" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 493CB2F12AE59C3600BBC27B;
+			productRefGroup = 493CB2FB2AE59C3600BBC27B /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				493CB2F92AE59C3600BBC27B /* Alexandria */,
+				493CB3152AE59C3700BBC27B /* Alexandria Extension */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		493CB2F82AE59C3600BBC27B /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				493CB3042AE59C3600BBC27B /* Icon.png in Resources */,
+				493CB30D2AE59C3600BBC27B /* Main.storyboard in Resources */,
+				493CB3082AE59C3600BBC27B /* Script.js in Resources */,
+				493CB3022AE59C3600BBC27B /* Main.html in Resources */,
+				493CB30F2AE59C3700BBC27B /* Assets.xcassets in Resources */,
+				493CB3062AE59C3600BBC27B /* Style.css in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		493CB3142AE59C3700BBC27B /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				492B73C52AE6E73A00E3C4AC /* main.js in Resources */,
+				493CB3262AE59C3700BBC27B /* SafariExtensionViewController.xib in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		493CB2F62AE59C3600BBC27B /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				493CB30A2AE59C3600BBC27B /* ViewController.swift in Sources */,
+				493CB2FE2AE59C3600BBC27B /* AppDelegate.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		493CB3122AE59C3700BBC27B /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				493CB31E2AE59C3700BBC27B /* SafariExtensionViewController.swift in Sources */,
+				493CB31C2AE59C3700BBC27B /* SafariExtensionHandler.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		493CB3192AE59C3700BBC27B /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 493CB3152AE59C3700BBC27B /* Alexandria Extension */;
+			targetProxy = 493CB3182AE59C3700BBC27B /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		493CB3002AE59C3600BBC27B /* Main.html */ = {
+			isa = PBXVariantGroup;
+			children = (
+				493CB3012AE59C3600BBC27B /* Base */,
+			);
+			name = Main.html;
+			sourceTree = "<group>";
+		};
+		493CB30B2AE59C3600BBC27B /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				493CB30C2AE59C3600BBC27B /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+		493CB3242AE59C3700BBC27B /* SafariExtensionViewController.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				493CB3252AE59C3700BBC27B /* Base */,
+			);
+			name = SafariExtensionViewController.xib;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		493CB3292AE59C3700BBC27B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		493CB32A2AE59C3700BBC27B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+			};
+			name = Release;
+		};
+		493CB32C2AE59C3700BBC27B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = "Alexandria Extension/Alexandria_Extension.entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 5953RHWYWT;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Alexandria Extension/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "Alexandria Extension";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.14;
+				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = (
+					"-framework",
+					SafariServices,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = ch.laurinbrandner.Alexandria.Extension;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		493CB32D2AE59C3700BBC27B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = "Alexandria Extension/Alexandria_Extension.entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 5953RHWYWT;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Alexandria Extension/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "Alexandria Extension";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.14;
+				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = (
+					"-framework",
+					SafariServices,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = ch.laurinbrandner.Alexandria.Extension;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		493CB3302AE59C3700BBC27B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Alexandria/Alexandria.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 5953RHWYWT;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = Alexandria;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_NSMainStoryboardFile = Main;
+				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.14;
+				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = (
+					"-framework",
+					SafariServices,
+					"-framework",
+					WebKit,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = ch.laurinbrandner.Alexandria;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		493CB3312AE59C3700BBC27B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Alexandria/Alexandria.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 5953RHWYWT;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = Alexandria;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_NSMainStoryboardFile = Main;
+				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.14;
+				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = (
+					"-framework",
+					SafariServices,
+					"-framework",
+					WebKit,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = ch.laurinbrandner.Alexandria;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		493CB2F52AE59C3600BBC27B /* Build configuration list for PBXProject "Alexandria" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				493CB3292AE59C3700BBC27B /* Debug */,
+				493CB32A2AE59C3700BBC27B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		493CB32B2AE59C3700BBC27B /* Build configuration list for PBXNativeTarget "Alexandria Extension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				493CB32C2AE59C3700BBC27B /* Debug */,
+				493CB32D2AE59C3700BBC27B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		493CB32F2AE59C3700BBC27B /* Build configuration list for PBXNativeTarget "Alexandria" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				493CB3302AE59C3700BBC27B /* Debug */,
+				493CB3312AE59C3700BBC27B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 493CB2F22AE59C3600BBC27B /* Project object */;
+}
