@@ -18,6 +18,8 @@
 		493CB30F2AE59C3700BBC27B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 493CB30E2AE59C3700BBC27B /* Assets.xcassets */; };
 		493CB3172AE59C3700BBC27B /* Alexandria Extension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 493CB3162AE59C3700BBC27B /* Alexandria Extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		493CB31C2AE59C3700BBC27B /* SafariExtensionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 493CB31B2AE59C3700BBC27B /* SafariExtensionHandler.swift */; };
+		49955D842AEEC97700EDE307 /* style.css in Resources */ = {isa = PBXBuildFile; fileRef = 49955D832AEEC97700EDE307 /* style.css */; };
+		49FD8A2F2AEEF4F0009343D4 /* pdf_viewer.css in Resources */ = {isa = PBXBuildFile; fileRef = 49FD8A2E2AEEF4F0009343D4 /* pdf_viewer.css */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -60,7 +62,8 @@
 		493CB31B2AE59C3700BBC27B /* SafariExtensionHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SafariExtensionHandler.swift; sourceTree = "<group>"; };
 		493CB3272AE59C3700BBC27B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		493CB3282AE59C3700BBC27B /* Alexandria_Extension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Alexandria_Extension.entitlements; sourceTree = "<group>"; };
-		49CACFEE2AE6ED78002B406E /* index.ts */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.typescript; name = index.ts; path = "Alexandria Viewer/src/index.ts"; sourceTree = SOURCE_ROOT; };
+		49955D832AEEC97700EDE307 /* style.css */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.css; name = style.css; path = "Alexandria Viewer/src/style.css"; sourceTree = SOURCE_ROOT; };
+		49FD8A2E2AEEF4F0009343D4 /* pdf_viewer.css */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.css; name = pdf_viewer.css; path = "Alexandria Viewer/node_modules/pdfjs-dist/web/pdf_viewer.css"; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -137,7 +140,8 @@
 		493CB31F2AE59C3700BBC27B /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				49CACFEE2AE6ED78002B406E /* index.ts */,
+				49FD8A2E2AEEF4F0009343D4 /* pdf_viewer.css */,
+				49955D832AEEC97700EDE307 /* style.css */,
 				492B73C42AE6E73A00E3C4AC /* main.js */,
 			);
 			path = Resources;
@@ -237,7 +241,9 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				49FD8A2F2AEEF4F0009343D4 /* pdf_viewer.css in Resources */,
 				492B73C52AE6E73A00E3C4AC /* main.js in Resources */,
+				49955D842AEEC97700EDE307 /* style.css in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
