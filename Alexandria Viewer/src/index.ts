@@ -1,13 +1,13 @@
-import * as pdfLib from "pdfjs-dist";
-import * as pdfViewer from "pdfjs-dist/web/pdf_viewer";
+import * as pl from "pdfjs-dist";
+import * as pv from "pdfjs-dist/web/pdf_viewer";
 // const xref = require("crossref");
 
-pdfLib.GlobalWorkerOptions.workerSrc = require("pdfjs-dist/build/pdf.worker.entry");
+pl.GlobalWorkerOptions.workerSrc = require("pdfjs-dist/build/pdf.worker.entry");
 
 class PDFViewer {
 
     url: String
-    pdf: pdfLib.PDFDocumentProxy | undefined
+    pdf: pl.PDFDocumentProxy | undefined
     container: HTMLDivElement;
 
     constructor(url: String, container: HTMLDivElement) {
@@ -16,20 +16,20 @@ class PDFViewer {
     }
 
     load() {
-        pdfLib.getDocument(this.url).promise.then((pdf: pdfLib.PDFDocumentProxy) => {
+        pl.getDocument(this.url).promise.then((pdf: pl.PDFDocumentProxy) => {
             this.pdf = pdf;
 
-            const eventBus = new pdfViewer.EventBus();
-            const linkService = new pdfViewer.PDFLinkService({
+            const eventBus = new pv.EventBus();
+            const linkService = new pv.PDFLinkService({
                 eventBus,
                 externalLinkRel: "noopener noreferrer nofollow",
-                externalLinkTarget: pdfViewer.LinkTarget.BLANK
+                externalLinkTarget: pv.LinkTarget.BLANK
             });	
-            const viewer = new pdfViewer.PDFViewer({
+            const viewer = new pv.PDFViewer({
                 container: this.container,
                 eventBus,
                 linkService,
-                l10n: pdfViewer.NullL10n,
+                l10n: pv.NullL10n,
                 textLayerMode: 2
             });
 
@@ -63,7 +63,7 @@ window.onload = () => {
 
 function prepareBody() {
     const container = document.createElement("div");
-    container.setAttribute("id", "pdf-container");
+    container.setAttribute("id", "alexandria-pdf-container");
 
     const viewer = document.createElement("div");
     viewer.setAttribute("class", "pdfViewer");
