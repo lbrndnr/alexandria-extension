@@ -20,25 +20,6 @@ class PDFViewer {
         pl.getDocument(this.url).promise.then((pdf: pl.PDFDocumentProxy) => {
             this.pdf = pdf;
 
-            pdf.getPage(1).then(page => {
-                extractTitleFromPage(page).then(value => {
-                    const title = value[0];
-                    document.title = title;
-
-                    // const client = new CrossrefClient()
-
-                    // const search: QueryWorksParams = {
-                    //     queryTitle: title,
-                    // };
-                    // // client.works(search).then(r => {
-                    // //     console.log(r);
-                    // //     for (const paper of r.content.message.items) {
-                    // //         console.log(paper.title);
-                    // //     }
-                    // // });
-                });
-            });
-
             const eventBus = new pv.EventBus();
             const linkService = new pv.PDFLinkService({
                 eventBus,
@@ -54,8 +35,63 @@ class PDFViewer {
 
             linkService.setViewer(viewer);
 
-            eventBus.on("pagesinit", function () {
+            eventBus.on("pagesinit", () => {
                 viewer.currentScaleValue = "page-width";
+            });
+
+            eventBus.on('textlayerrendered', () => {
+                const layer = document.getElementsByClassName("textLayer")[0];
+
+                var text = "";
+                var idx: number[] = [];
+
+                for (const elem of layer.children) {
+                    idx.push(text.length);
+                    text += elem.textContent;
+                }
+
+                pdf.getPage(1).then(page => {
+                    extractTitleFromPage(page).then(value => {
+                        const title = value[0];
+
+                        const k = text.indexOf(title);
+                        if (k > 0) {
+                            var elems = [];
+                            
+                            idx.forEach((i, j) => {
+                                if (i > k + title.length) return;
+
+                                if (i >= k && i < k + title.length) {
+
+                                    const query = encodeURIComponent(title);
+                                    const url = `https://scholar.google.com/scholar?q=${query}`
+
+                                    const span = layer.children[j];
+                                    const a = document.createElement("a");
+                                    a.setAttribute("href", url);
+                                    a.setAttribute("target", "_blank");
+                                    a.innerHTML = span.outerHTML;
+
+                                    layer.insertBefore(a, span);
+                                    span.remove();
+                                }
+                            });
+                        }
+
+    
+                        // const client = new CrossrefClient()
+    
+                        // const search: QueryWorksParams = {
+                        //     queryTitle: title,
+                        // };
+                        // client.works(search).then(r => {
+                        //     console.log(r);
+                        //     for (const paper of r.content.message.items) {
+                        //         console.log(paper.title);
+                        //     }
+                        // });
+                    });
+                });
             });
 
             viewer.setDocument(this.pdf);
