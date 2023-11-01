@@ -14,7 +14,7 @@
   "author": "Laurin Brandner",
   "license": "ISC",
   "dependencies": {
-    "crossref": "^1.2.1",
+    "@jamesgopsill/crossref-client": "^1.0.1",
     "pdfjs-dist": "^3.11.174"
   },
   "devDependencies": {
