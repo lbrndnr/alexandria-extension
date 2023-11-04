@@ -4,3 +4,16 @@
     width: 100%;
     height: 100%;
 }
+
+#alexandria-pdf-container a:hover {
+    cursor: pointer !important;
+    pointer-events: auto !important;
+}
+
+body > embed {
+    display: none;
+}
+
+body > #annotationContainer {
+    display: none;
+}

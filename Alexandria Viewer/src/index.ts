@@ -5,6 +5,18 @@ import { CrossrefClient, QueryWorksParams } from "@jamesgopsill/crossref-client"
 
 pl.GlobalWorkerOptions.workerSrc = require("pdfjs-dist/build/pdf.worker.entry");
 
+// const client = new CrossrefClient()
+    
+// const search: QueryWorksParams = {
+//     queryTitle: title,
+// };
+// client.works(search).then(r => {
+//     console.log(r);
+//     for (const paper of r.content.message.items) {
+//         console.log(paper.title);
+//     }
+// });
+
 class PDFViewer {
 
     url: String
@@ -78,18 +90,6 @@ class PDFViewer {
                             });
                         }
 
-    
-                        // const client = new CrossrefClient()
-    
-                        // const search: QueryWorksParams = {
-                        //     queryTitle: title,
-                        // };
-                        // client.works(search).then(r => {
-                        //     console.log(r);
-                        //     for (const paper of r.content.message.items) {
-                        //         console.log(paper.title);
-                        //     }
-                        // });
                     });
                 });
             });
@@ -101,14 +101,18 @@ class PDFViewer {
 
 }
 
-window.onload = () => {
-    if (document.contentType != "application/pdf") return;
-
-    const container = prepareBody();    
-    const url = window.location.href;
-    const viewer = new PDFViewer(url, container);
-    viewer.load();
-}
+document.addEventListener("DOMContentLoaded", (_) => {
+    if (document.contentType == "application/pdf") {
+        const container = prepareBody();    
+        const url = window.location.href;
+        const viewer = new PDFViewer(url, container);
+        viewer.load();
+    }
+    // else {
+        // const declaration = document.styleSheets[0].rules[0].style;
+        // const oldValue = declaration.removeProperty("background-color");
+    // }
+});
 
 function prepareBody(): HTMLDivElement {
     const viewer = document.createElement("div");
@@ -118,7 +122,7 @@ function prepareBody(): HTMLDivElement {
     container.setAttribute("id", "alexandria-pdf-container");
     container.appendChild(viewer);
 
-    document.body.replaceChildren(container);
+    document.body.appendChild(container);
 
     return container;
 }

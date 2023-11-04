@@ -28,10 +28,6 @@
 		</array>
 		<key>SFSafariWebsiteAccess</key>
 		<dict>
-			<key>Allowed Domains</key>
-			<array>
-				<string>*.pdf</string>
-			</array>
 			<key>Level</key>
 			<string>All</string>
 		</dict>
