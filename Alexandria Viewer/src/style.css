@@ -8,6 +8,7 @@
 #alexandria-pdf-container a:hover {
     cursor: pointer !important;
     pointer-events: auto !important;
+    background-color: transparent;
 }
 
 body > embed {

@@ -5,6 +5,12 @@ import { CrossrefClient, QueryWorksParams } from "@jamesgopsill/crossref-client"
 
 pl.GlobalWorkerOptions.workerSrc = require("pdfjs-dist/build/pdf.worker.entry");
 
+var gpdf: Promise<pl.PDFDocumentProxy> = null;
+if (document.contentType == "application/pdf") {
+    const url = window.location.href;
+    gpdf = pl.getDocument(url).promise;
+}
+
 // const client = new CrossrefClient()
     
 // const search: QueryWorksParams = {
@@ -29,9 +35,9 @@ class PDFViewer {
         this.container = container;
     }
 
-
-    async load() {
-        this.pdf = await pl.getDocument(this.url).promise;
+    async reload() {
+        // this.pdf = await pl.getDocument(this.url).promise;
+        this.pdf = await gpdf;
 
         const eventBus = new pv.EventBus();
         const linkService = new pv.PDFLinkService({
@@ -54,55 +60,14 @@ class PDFViewer {
             this.viewer.currentScaleValue = "page-width";
         });
 
-        eventBus.on('textlayerrendered', () => {
-            
-        });
-
         const title = await this._getPDFTitle();
+        const query = encodeURIComponent(title);
+        const url = `https://scholar.google.com/scholar?q=${query}`;
         this._setDocumentTitle(title);
-    }
 
-    _loadNodeTree() {
-        const layer = document.getElementsByClassName("textLayer")[0];
-
-            var text = "";
-            var idx: number[] = [];
-
-            for (const elem of layer.children) {
-                idx.push(text.length);
-                text += elem.textContent;
-            }
-
-                // pdf.getPage(1).then(page => {
-                //     extractTitleFromPage(page).then(value => {
-                //         const title = value[0];
-
-                //         const k = text.indexOf(title);
-                //         if (k > 0) {
-                //             var elems = [];
-                            
-                //             idx.forEach((i, j) => {
-                //                 if (i > k + title.length) return;
-
-                //                 if (i >= k && i < k + title.length) {
-
-                //                     const query = encodeURIComponent(title);
-                //                     const url = `https://scholar.google.com/scholar?q=${query}`
-
-                //                     const span = layer.children[j];
-                //                     const a = document.createElement("a");
-                //                     a.setAttribute("href", url);
-                //                     a.setAttribute("target", "_blank");
-                //                     a.innerHTML = span.outerHTML;
-
-                //                     layer.insertBefore(a, span);
-                //                     span.remove();
-                //                 }
-                //             });
-                //         }
-
-                //     });
-                // });
+        eventBus.on("annotationlayerrendered", () => {
+            this._addLinkToText(title, url, 1);
+        });
     }
 
     async _getPDFTitle(): Promise<string> {
@@ -120,11 +85,11 @@ class PDFViewer {
                 title = item.str;
             }
             else if (item.height == maxHeight) {
-                title += item.str;
+                title += " " + item.str;
             }
         }
     
-        return title;
+        return this._normalize(title);
     }
 
     _setDocumentTitle(text: string) {
@@ -133,13 +98,66 @@ class PDFViewer {
 
         const head = document.createElement("head");
         head.appendChild(title);
-        
+
         document.body.insertAdjacentElement("beforebegin", head);
     }
 
-    // addLink(text: string, url: string) {
-        
-    // }
+    async _addLinkToText(str: string, url: string, pageIdx: number) {
+        const als = document.getElementsByClassName("annotationLayer");
+        if (als.length < pageIdx) return;
+
+        const annotationLayer = als[pageIdx-1] as HTMLElement;
+        annotationLayer.hidden = false;
+
+        var text = "";
+        var idx: number[] = [];
+        var items: TextItem[] = [];
+
+        const page = await this.pdf.getPage(pageIdx);
+        const textContent = await page.getTextContent();
+    
+        for (const elem of textContent.items) {
+            const item = elem as TextItem;
+            if (item.str.length == 0) continue;
+
+            items.push(item);
+            idx.push(text.length);
+            text += item.str + " ";
+            text = this._normalize(text);
+        }
+
+        const k = text.indexOf(str);
+        if (k >= 0) {            
+            idx.forEach((i, j) => {
+                if (i >= k && i < k + str.length) {
+                    const item = items[j];
+
+                    const a = document.createElement("a");
+                    a.setAttribute("title", "Search on Google Scholar");
+                    a.setAttribute("id", "alexandria-url-google-scholar");
+                    a.setAttribute("href", url);
+                    a.setAttribute("target", "_blank");
+
+                    const pageHeight = page.view[3] - page.view[1];
+                    const top = pageHeight - (item.transform[5] + item.height);
+                    const section = document.createElement("section");
+                    section.style.zIndex = "0";
+                    section.style.left = `calc(var(--scale-factor)*${item.transform[4]}px)`;
+                    section.style.top = `calc(var(--scale-factor)*${top}px)`;
+                    section.style.height = `calc(var(--scale-factor)*${item.height}px)`;
+                    section.style.width = `calc(var(--scale-factor)*${item.width}px)`;
+                    section.setAttribute("class", "linkAnnotation");
+                    section.appendChild(a);
+
+                    annotationLayer.appendChild(section);
+                }
+            });
+        }
+    }
+
+    _normalize(str: string): string {
+        return str.replace(/\s+/g, " ");
+    }
 
 }
 
@@ -148,7 +166,7 @@ document.addEventListener("DOMContentLoaded", (_) => {
         const container = prepareBody();    
         const url = window.location.href;
         const viewer = new PDFViewer(url, container);
-        viewer.load();
+        viewer.reload();
     }
     // else {
         // const declaration = document.styleSheets[0].rules[0].style;
