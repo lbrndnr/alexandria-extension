@@ -61,10 +61,10 @@ class PDFViewer {
         });
 
         const title = await this._getPDFTitle();
-        const query = encodeURIComponent(title);
-        const url = `https://scholar.google.com/scholar?q=${query}`;
         this._setDocumentTitle(title);
 
+        const query = encodeURIComponent(title);
+        const url = `https://scholar.google.com/scholar?q=${query}`;
         eventBus.on("annotationlayerrendered", () => {
             this._addLinkToText(title, url, 1);
         });
@@ -93,6 +93,9 @@ class PDFViewer {
     }
 
     _setDocumentTitle(text: string) {
+        // In case we're in an iframe, set the top document's title too
+        top.document.title = text;
+
         const title = document.createElement("title");
         title.innerText = text;
 
