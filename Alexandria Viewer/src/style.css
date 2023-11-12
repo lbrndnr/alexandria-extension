@@ -6,10 +6,14 @@
 }
 
 #alexandria-pdf-container a:hover {
-    cursor: pointer !important;
-    pointer-events: auto !important;
+    cursor: pointer;
+    pointer-events: auto;
     background-color: transparent;
 }
+
+html {
+    color-scheme: dark;
+  }
 
 body > embed {
     display: none;
