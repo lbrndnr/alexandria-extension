@@ -79,7 +79,8 @@ class PDFViewer {
     
         for (const elem of textContent.items) {
             const item = elem as TextItem;
-            if (item.transform[1] > 0 || item.transform[2] > 0) continue;
+            // only consider horizontal text
+            if (Math.abs(item.transform[1]) > 0 || Math.abs(item.transform[2]) > 0) continue;
     
             if (item.height > maxHeight) {
                 maxHeight = item.height;
