@@ -186,11 +186,12 @@ function addEventListeners() {
             window.open(url, "_blank");
         }
         else if (event.key == "i") {
-            if (viewer.container.style.filter.length == 0) {
-                viewer.container.style.filter = "invert(1)";
+            const cls = "inverted-color";
+            if (viewer.container.classList.contains(cls)) {
+                viewer.container.classList.remove(cls)
             }
             else {
-                viewer.container.style.filter = null;
+                viewer.container.classList.add(cls);
             }
         }
     });
