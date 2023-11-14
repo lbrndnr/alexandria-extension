@@ -9,6 +9,12 @@ var gpdf: Promise<pl.PDFDocumentProxy> = null;
 if (document.contentType == "application/pdf") {
     const url = window.location.href;
     gpdf = pl.getDocument(url).promise;
+    addEventListeners();
+}
+
+function googleScholarQueryURL(title: string): string {
+    const query = encodeURIComponent(title);
+    return `https://scholar.google.com/scholar?q=${query}`;
 }
 
 // const client = new CrossrefClient()
@@ -63,8 +69,7 @@ class PDFViewer {
         const title = await this._getPDFTitle();
         this._setDocumentTitle(title);
 
-        const query = encodeURIComponent(title);
-        const url = `https://scholar.google.com/scholar?q=${query}`;
+        const url = googleScholarQueryURL(title);
         eventBus.on("annotationlayerrendered", () => {
             this._addLinkToText(title, url, 1);
         });
@@ -166,18 +171,21 @@ class PDFViewer {
 
 }
 
-document.addEventListener("DOMContentLoaded", (_) => {
-    if (document.contentType == "application/pdf") {
+function addEventListeners() {
+    document.addEventListener("DOMContentLoaded", (_) => {
         const container = prepareBody();    
         const url = window.location.href;
         const viewer = new PDFViewer(url, container);
         viewer.reload();
-    }
-    // else {
-        // const declaration = document.styleSheets[0].rules[0].style;
-        // const oldValue = declaration.removeProperty("background-color");
-    // }
-});
+    });   
+
+    document.addEventListener("keypress", (event) => {
+        if (event.key == "t") {
+            const url = googleScholarQueryURL(top.document.title);
+            window.open(url, "_blank");
+        }
+    });
+}
 
 function prepareBody(): HTMLDivElement {
     const viewer = document.createElement("div");
