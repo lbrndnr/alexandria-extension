@@ -6,6 +6,7 @@ import { CrossrefClient, QueryWorksParams } from "@jamesgopsill/crossref-client"
 pl.GlobalWorkerOptions.workerSrc = require("pdfjs-dist/build/pdf.worker.entry");
 
 var gpdf: Promise<pl.PDFDocumentProxy> = null;
+var viewer: PDFViewer = null;
 if (document.contentType == "application/pdf") {
     const url = window.location.href;
     gpdf = pl.getDocument(url).promise;
@@ -175,14 +176,22 @@ function addEventListeners() {
     document.addEventListener("DOMContentLoaded", (_) => {
         const container = prepareBody();    
         const url = window.location.href;
-        const viewer = new PDFViewer(url, container);
+        viewer = new PDFViewer(url, container);
         viewer.reload();
     });   
 
     document.addEventListener("keypress", (event) => {
-        if (event.key == "t") {
+        if (event.key == "s") {
             const url = googleScholarQueryURL(top.document.title);
             window.open(url, "_blank");
+        }
+        else if (event.key == "i") {
+            if (viewer.container.style.filter.length == 0) {
+                viewer.container.style.filter = "invert(1)";
+            }
+            else {
+                viewer.container.style.filter = null;
+            }
         }
     });
 }
