@@ -1,7 +1,7 @@
 import * as pl from "pdfjs-dist";
 import { TextItem } from "pdfjs-dist/types/src/display/api";
 import * as pv from "pdfjs-dist/web/pdf_viewer";
-import { CrossrefClient, QueryWorksParams } from "@jamesgopsill/crossref-client"
+import { XMLParser } from "fast-xml-parser";
 
 pl.GlobalWorkerOptions.workerSrc = require("pdfjs-dist/build/pdf.worker.entry");
 
@@ -12,23 +12,6 @@ if (document.contentType == "application/pdf") {
     gpdf = pl.getDocument(url).promise;
     addEventListeners();
 }
-
-function googleScholarQueryURL(title: string): string {
-    const query = encodeURIComponent(title);
-    return `https://scholar.google.com/scholar?q=${query}`;
-}
-
-// const client = new CrossrefClient()
-    
-// const search: QueryWorksParams = {
-//     queryTitle: title,
-// };
-// client.works(search).then(r => {
-//     console.log(r);
-//     for (const paper of r.content.message.items) {
-//         console.log(paper.title);
-//     }
-// });
 
 class PDFViewer {
 
@@ -67,12 +50,19 @@ class PDFViewer {
             this.viewer.currentScaleValue = "page-width";
         });
 
-        const title = await this._getPDFTitle();
-        this._setDocumentTitle(title);
+        var loadedTitle = false;
+        eventBus.on("annotationlayerrendered", async () => {
+            if (loadedTitle) return;
+            loadedTitle = true;
 
-        const url = googleScholarQueryURL(title);
-        eventBus.on("annotationlayerrendered", () => {
-            this._addLinkToText(title, url, 1);
+            const title = await this._getPDFTitle();
+            this._setDocumentTitle(title);
+            const authors = await getAuthors(title);
+
+            this._addLinkToText(title, googleScholarQueryURL(title), 1);
+            for (const author of authors) {
+                this._addLinkToText(author, googleScholarQueryURL(author), 1);
+            }
         });
     }
 
@@ -170,6 +160,30 @@ class PDFViewer {
         return str.replace(/\s+/g, " ");
     }
 
+}
+
+function googleScholarQueryURL(text: string): string {
+    const query = encodeURIComponent(text);
+    return `https://scholar.google.com/scholar?q=${query}`;
+}
+
+async function getAuthors(title: string): Promise<string[] | null> {
+    const query = encodeURIComponent(title.replace(":", " "));
+    const url = `https://export.arxiv.org/api/query?search_query=${query}`;
+
+    const res = await fetch(url);
+    const text = await res.text();
+    const parser = new XMLParser();
+    const body = parser.parse(text);
+    for (const entry of body.feed.entry) {
+        const asdf = entry.title.replace(/\s+/g, " ");
+
+        if (asdf.toLowerCase() == title.toLowerCase()) {
+            return entry.author.map((a: any) => { return a.name });
+        }
+    }
+
+    return [];
 }
 
 function addEventListeners() {
