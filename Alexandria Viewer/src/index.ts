@@ -50,20 +50,21 @@ class PDFViewer {
             this.viewer.currentScaleValue = "page-width";
         });
 
-        var loadedTitle = false;
-        eventBus.on("annotationlayerrendered", async () => {
-            if (loadedTitle) return;
-            loadedTitle = true;
-
-            const title = await this._getPDFTitle();
-            this._setDocumentTitle(title);
-            const authors = await getAuthors(title);
-
-            this._addLinkToText(title, googleScholarQueryURL(title), 1);
-            for (const author of authors) {
-                this._addLinkToText(author, googleScholarQueryURL(author), 1);
-            }
+        const rendered = new Promise((resolve, reject) => {
+            eventBus.on("annotationlayerrendered", resolve);
         });
+        const title = this._getPDFTitle();
+        const authors = title.then(getAuthors);
+
+        Promise.all([rendered, title, authors])
+            .then((res) => {
+                const [_, title, authors] = res;
+
+                this._addLinkToText(title, googleScholarQueryURL(title), 1);
+                for (const author of authors) {
+                    this._addLinkToText(author, googleScholarQueryURL(author), 1);
+                }
+            });
     }
 
     async _getPDFTitle(): Promise<string> {
