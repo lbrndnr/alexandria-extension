@@ -6,7 +6,9 @@ import { XMLParser } from "fast-xml-parser";
 pl.GlobalWorkerOptions.workerSrc = require("pdfjs-dist/build/pdf.worker.entry");
 
 var gpdf: Promise<pl.PDFDocumentProxy> = null;
-var viewer: PDFViewer = null;
+var VIEWER: PDFViewer = null;
+var SCALE_VALUE = "page-width";
+
 if (document.contentType == "application/pdf") {
     const url = window.location.href;
     gpdf = pl.getDocument(url).promise;
@@ -191,25 +193,41 @@ function addEventListeners() {
     document.addEventListener("DOMContentLoaded", (_) => {
         const container = prepareBody();    
         const url = window.location.href;
-        viewer = new PDFViewer(url, container);
-        viewer.reload();
+        VIEWER = new PDFViewer(url, container);
+        VIEWER.reload();
     });   
 
     document.addEventListener("keypress", (event) => {
-        if (event.key == "s") {
-            const url = googleScholarQueryURL(top.document.title);
-            window.open(url, "_blank");
-        }
-        else if (event.key == "i") {
-            const cls = "inverted-color";
-            if (viewer.container.classList.contains(cls)) {
-                viewer.container.classList.remove(cls)
+        switch (event.key) {
+            case "s": {
+                const url = googleScholarQueryURL(top.document.title);
+                window.open(url, "_blank");
+                break;
             }
-            else {
-                viewer.container.classList.add(cls);
+            case "i": {
+                const cls = "inverted-color";
+                if (VIEWER.container.classList.contains(cls)) {
+                    VIEWER.container.classList.remove(cls)
+                }
+                else {
+                    VIEWER.container.classList.add(cls);
+                }
+                break;
             }
+            case "8": setScaleValue("page-fit"); break;
+            case "9": setScaleValue("page-width"); break;
+            case "0": setScaleValue("auto"); break;
         }
     });
+
+    window.onresize = (event) => {
+        VIEWER.viewer.currentScaleValue = SCALE_VALUE;
+    };
+}
+
+function setScaleValue(value: string) {
+    SCALE_VALUE = value;
+    VIEWER.viewer.currentScaleValue = value;
 }
 
 function prepareBody(): HTMLDivElement {
