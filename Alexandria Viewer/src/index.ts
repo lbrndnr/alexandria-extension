@@ -56,7 +56,10 @@ class PDFViewer {
             eventBus.on("annotationlayerrendered", resolve);
         });
         const title = this._getPDFTitle();
-        const authors = title.then(getAuthors);
+        const authors = title.then((title) => {
+            this._setDocumentTitle(title);
+            return getAuthors(title);
+        });
 
         Promise.all([rendered, title, authors])
             .then((res) => {
