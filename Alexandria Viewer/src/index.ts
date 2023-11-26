@@ -69,21 +69,16 @@ class PDFViewer {
                 for (const author of authors) {
                     this._addLinkToText(author, googleScholarQueryURL(author), 1);
                 }
+
+                // const ok = this._getSection("References");
             });
     }
 
-    async _getPDFTitle(): Promise<string> {
-        const page = await this.pdf.getPage(1);
-        const textContent = await page.getTextContent();
-    
+    async _getPDFTitle(): Promise<string> {    
         var title = "";
         var maxHeight = 0;
     
-        for (const elem of textContent.items) {
-            const item = elem as TextItem;
-            // only consider horizontal text
-            if (Math.abs(item.transform[1]) > 0 || Math.abs(item.transform[2]) > 0) continue;
-    
+        for await (const item of this._iterateHorizontalText(1, 2)) {    
             if (item.height > maxHeight) {
                 maxHeight = item.height;
                 title = item.str;
@@ -95,6 +90,66 @@ class PDFViewer {
     
         return this._normalize(title);
     }
+
+    async _getSection(name: string): Promise<string> {
+        var itemsOfHeight = new Map();
+
+        for await (const item of this._iterateHorizontalText(1, this.pdf.numPages)) {    
+            const height = Math.ceil(item.height * 100);
+
+            if (itemsOfHeight.has(height)) {
+                const items = itemsOfHeight.get(height);
+                items.push(item);
+            }
+            else {
+                itemsOfHeight.set(height, [item]);
+            }
+        }
+
+        const typicalSections = ["Introduction", "Background", "Results", "Conclusion", "Discussion"];
+        var sectionHeight = 0;
+        var maxNumMatches = 0;
+        itemsOfHeight.forEach((items, height) => {
+            const text = items.reduce((text: string, item: TextItem) => text += item.str, "")
+
+            const numMatches = typicalSections
+                .map((sec) => text.includes(sec))
+                .reduce((a, b) => a + b, 0);
+
+            if (numMatches > maxNumMatches && height > sectionHeight) {
+                sectionHeight = height;
+                maxNumMatches = numMatches;
+            }
+        });
+
+        return null;
+    }
+
+    async *_iterateHorizontalText(start: number, end: number): AsyncGenerator<TextItem, void, void> {
+        for (var i = start; i <= end; i++) {
+            const page = await this.pdf.getPage(i);
+            const textContent = await page.getTextContent();
+        
+            for (const elem of textContent.items) {
+                const item = elem as TextItem;
+                // only consider horizontal text
+                if (Math.abs(item.transform[1]) > 0 || Math.abs(item.transform[2]) > 0) continue;
+        
+                yield item;
+            }
+        }
+    }
+
+    // async _getReferences(): Promise<Object> {
+    //     const page = await this.pdf.getPage(this.pdf.numPages);
+    //     const textContent = await page.getTextContent();
+    //     var refs = Object();
+
+
+        
+
+    //     return refs;
+    // }
 
     _setDocumentTitle(text: string) {
         // In case we're in an iframe, set the top document's title too
