@@ -92,25 +92,28 @@ class PDFViewer {
     }
 
     async _getSection(name: string): Promise<string> {
-        var itemsOfHeight = new Map();
+        var items = Array<TextItem>();
+        var indicesOfHeight = new Map();
 
-        for await (const item of this._iterateHorizontalText(1, this.pdf.numPages)) {    
+        for await (const item of this._iterateHorizontalText(1, this.pdf.numPages)) {  
+            if (item.str.length == 0) continue;
             const height = Math.ceil(item.height * 100);
 
-            if (itemsOfHeight.has(height)) {
-                const items = itemsOfHeight.get(height);
-                items.push(item);
+            if (indicesOfHeight.has(height)) {
+                const indices = indicesOfHeight.get(height);
+                indices.push(items.length);
             }
             else {
-                itemsOfHeight.set(height, [item]);
+                indicesOfHeight.set(height, [items.length]);
             }
+            items.push(item);
         }
 
-        const typicalSections = ["Introduction", "Background", "Results", "Conclusion", "Discussion"];
+        const typicalSections = ["Introduction", "Background", "Results", "Conclusion", "Discussion", "References", "Bibliography"];
         var sectionHeight = 0;
         var maxNumMatches = 0;
-        itemsOfHeight.forEach((items, height) => {
-            const text = items.reduce((text: string, item: TextItem) => text += item.str, "")
+        indicesOfHeight.forEach((indices, height) => {
+            const text = indices.reduce((text: string, idx: number) => text += items[idx].str, "")
 
             const numMatches = typicalSections
                 .map((sec) => text.includes(sec))
@@ -121,6 +124,23 @@ class PDFViewer {
                 maxNumMatches = numMatches;
             }
         });
+
+        const referenceTitles = ["References", "Bibliography"];
+        var referencesStart = undefined;
+        for (const title of referenceTitles) {
+            for (const idx of indicesOfHeight.get(sectionHeight)) {
+                if (items[idx].str.includes(title)) {
+                    referencesStart = idx;
+                    break;
+                }
+            }
+        }
+
+        if (referencesStart === undefined) { return null; }
+
+        for (var i = referencesStart; i < items.length; i++) {
+            console.log(items[i].str);
+        }
 
         return null;
     }
