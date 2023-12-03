@@ -70,7 +70,30 @@ class PDFViewer {
                     this._addLinkToText(author, googleScholarQueryURL(author), 1);
                 }
 
-                // const ok = this._getSection("References");
+                this._getSection("References").then((refs) => {
+                    var keywordToCitation = new Map();
+                    var keyword = null;
+                    var j = 0;
+                    for (var i = 0; i < refs.length; i++) {
+                        if (refs[i] == "[") {
+                            if (keyword !== null) {
+                                const cit = refs.substring(j+1, i);
+                                keywordToCitation.set(keyword, cit);
+                                keyword = null;
+                            }
+                            j = i;
+                        }
+                        else if (refs[i] == "]") {
+                            keyword = refs.substring(j+1, i);
+                            j = i;
+                        }
+                    }
+
+                    keywordToCitation.forEach((citation, keyword) => {
+                        console.log(keyword);
+                        this._addLinkToText(`[${keyword}]`, googleScholarQueryURL(citation), 3);
+                    });
+                });
             });
     }
 
@@ -138,11 +161,12 @@ class PDFViewer {
 
         if (referencesStart === undefined) { return null; }
 
+        var text = "";
         for (var i = referencesStart; i < items.length; i++) {
-            console.log(items[i].str);
+            text += items[i].str + " ";
         }
 
-        return null;
+        return this._normalize(text);
     }
 
     async *_iterateHorizontalText(start: number, end: number): AsyncGenerator<TextItem, void, void> {
@@ -159,17 +183,6 @@ class PDFViewer {
             }
         }
     }
-
-    // async _getReferences(): Promise<Object> {
-    //     const page = await this.pdf.getPage(this.pdf.numPages);
-    //     const textContent = await page.getTextContent();
-    //     var refs = Object();
-
-
-        
-
-    //     return refs;
-    // }
 
     _setDocumentTitle(text: string) {
         // In case we're in an iframe, set the top document's title too
