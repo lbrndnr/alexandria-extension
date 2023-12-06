@@ -52,49 +52,48 @@ class PDFViewer {
             this.viewer.currentScaleValue = "page-width";
         });
 
-        const rendered = new Promise((resolve, reject) => {
-            eventBus.on("annotationlayerrendered", resolve);
-        });
         const title = this._getPDFTitle();
         const authors = title.then((title) => {
             this._setDocumentTitle(title);
             return getAuthors(title);
         });
+        const titleAndAuthors = Promise.all([title, authors]);
+        const refs = this._getSection("References");
 
-        Promise.all([rendered, title, authors])
-            .then((res) => {
-                const [_, title, authors] = res;
+        eventBus.on("annotationlayerrendered", (event: any) => {
+            titleAndAuthors.then(res => {
+                const [title, authors] = res;
 
-                this._addLinkToText(title, googleScholarQueryURL(title), 1);
+                this._addLinkToText(title, googleScholarQueryURL(title), event.pageNumber, "Search on Google Scholar");
                 for (const author of authors) {
-                    this._addLinkToText(author, googleScholarQueryURL(author), 1);
+                    this._addLinkToText(author, googleScholarQueryURL(author), event.pageNumber, "Search on Google Scholar");
+                }
+            });
+
+            refs.then(refs => {
+                var keywordToCitation = new Map();
+                var keyword = null;
+                var j = 0;
+                for (var i = 0; i < refs.length; i++) {
+                    if (refs[i] == "[") {
+                        if (keyword !== null) {
+                            const cit = refs.substring(j+1, i);
+                            keywordToCitation.set(keyword, cit.trim());
+                            keyword = null;
+                        }
+                        j = i;
+                    }
+                    else if (refs[i] == "]") {
+                        keyword = refs.substring(j+1, i);
+                        j = i;
+                    }
                 }
 
-                this._getSection("References").then((refs) => {
-                    var keywordToCitation = new Map();
-                    var keyword = null;
-                    var j = 0;
-                    for (var i = 0; i < refs.length; i++) {
-                        if (refs[i] == "[") {
-                            if (keyword !== null) {
-                                const cit = refs.substring(j+1, i);
-                                keywordToCitation.set(keyword, cit);
-                                keyword = null;
-                            }
-                            j = i;
-                        }
-                        else if (refs[i] == "]") {
-                            keyword = refs.substring(j+1, i);
-                            j = i;
-                        }
-                    }
-
-                    keywordToCitation.forEach((citation, keyword) => {
-                        console.log(keyword);
-                        this._addLinkToText(`[${keyword}]`, googleScholarQueryURL(citation), 3);
-                    });
+                keywordToCitation.forEach((citation, keyword) => {
+                    this._addLinkToText(keyword, googleScholarQueryURL(citation), event.pageNumber, citation);
                 });
             });
+        });
     }
 
     async _getPDFTitle(): Promise<string> {    
@@ -197,7 +196,7 @@ class PDFViewer {
         document.body.insertAdjacentElement("beforebegin", head);
     }
 
-    async _addLinkToText(str: string, url: string, pageIdx: number) {
+    async _addLinkToText(str: string, url: string, pageIdx: number, tooltip: string) {
         const als = document.getElementsByClassName("annotationLayer");
         if (als.length < pageIdx) return;
 
@@ -228,7 +227,7 @@ class PDFViewer {
                     const item = items[j];
 
                     const a = document.createElement("a");
-                    a.setAttribute("title", "Search on Google Scholar");
+                    a.setAttribute("title", tooltip);
                     a.setAttribute("id", "alexandria-url-google-scholar");
                     a.setAttribute("href", url);
                     a.setAttribute("target", "_blank");
@@ -236,7 +235,7 @@ class PDFViewer {
                     const pageHeight = page.view[3] - page.view[1];
                     const top = pageHeight - (item.transform[5] + item.height);
                     const section = document.createElement("section");
-                    section.style.zIndex = "0";
+                    section.style.zIndex = "10";
                     section.style.left = `calc(var(--scale-factor)*${item.transform[4]}px)`;
                     section.style.top = `calc(var(--scale-factor)*${top}px)`;
                     section.style.height = `calc(var(--scale-factor)*${item.height}px)`;
