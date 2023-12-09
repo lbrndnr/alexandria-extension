@@ -2,23 +2,21 @@ import * as pl from "pdfjs-dist";
 import { TextItem } from "pdfjs-dist/types/src/display/api";
 import * as pv from "pdfjs-dist/web/pdf_viewer";
 import { XMLParser } from "fast-xml-parser";
+import { AcademicDocumentProxy } from "./doc";
 
 pl.GlobalWorkerOptions.workerSrc = require("pdfjs-dist/build/pdf.worker.entry");
 
-var gpdf: Promise<pl.PDFDocumentProxy> = null;
 var VIEWER: PDFViewer = null;
 var SCALE_VALUE = "page-width";
 
 if (document.contentType == "application/pdf") {
-    const url = window.location.href;
-    gpdf = pl.getDocument(url).promise;
     addEventListeners();
 }
 
-class PDFViewer {
+export class PDFViewer {
 
     url: String
-    pdf: pl.PDFDocumentProxy | undefined
+    doc: AcademicDocumentProxy
     container: HTMLDivElement;
     viewer: pv.PDFViewer | undefined;
 
@@ -28,8 +26,8 @@ class PDFViewer {
     }
 
     async reload() {
-        // this.pdf = await pl.getDocument(this.url).promise;
-        this.pdf = await gpdf;
+        const pdf = await pl.getDocument(this.url).promise;
+        this.doc = new AcademicDocumentProxy(pdf);
 
         const eventBus = new pv.EventBus();
         const linkService = new pv.PDFLinkService({
@@ -44,21 +42,21 @@ class PDFViewer {
             l10n: pv.NullL10n
         });
 
-        this.viewer.setDocument(this.pdf);
+        this.viewer.setDocument(pdf);
         linkService.setViewer(this.viewer);
-        linkService.setDocument(this.pdf);
+        linkService.setDocument(pdf);
 
         eventBus.on("pagesinit", () => {
             this.viewer.currentScaleValue = "page-width";
         });
 
-        const title = this._getPDFTitle();
+        const title = this.doc.loadTitle();
         const authors = title.then((title) => {
             this._setDocumentTitle(title);
             return getAuthors(title);
         });
         const titleAndAuthors = Promise.all([title, authors]);
-        const refs = this._getSection("References");
+        const refs = this.doc.loadSection("References");
 
         eventBus.on("annotationlayerrendered", (event: any) => {
             titleAndAuthors.then(res => {
@@ -96,94 +94,7 @@ class PDFViewer {
         });
     }
 
-    async _getPDFTitle(): Promise<string> {    
-        var title = "";
-        var maxHeight = 0;
-    
-        for await (const item of this._iterateHorizontalText(1, 2)) {    
-            if (item.height > maxHeight) {
-                maxHeight = item.height;
-                title = item.str;
-            }
-            else if (item.height == maxHeight) {
-                title += " " + item.str;
-            }
-        }
-    
-        return this._normalize(title);
-    }
-
-    async _getSection(name: string): Promise<string> {
-        var items = Array<TextItem>();
-        var indicesOfHeight = new Map();
-
-        for await (const item of this._iterateHorizontalText(1, this.pdf.numPages)) {  
-            if (item.str.length == 0) continue;
-            const height = Math.ceil(item.height * 100);
-
-            if (indicesOfHeight.has(height)) {
-                const indices = indicesOfHeight.get(height);
-                indices.push(items.length);
-            }
-            else {
-                indicesOfHeight.set(height, [items.length]);
-            }
-            items.push(item);
-        }
-
-        const typicalSections = ["Introduction", "Background", "Results", "Conclusion", "Discussion", "References", "Bibliography"];
-        var sectionHeight = 0;
-        var maxNumMatches = 0;
-        indicesOfHeight.forEach((indices, height) => {
-            const text = indices.reduce((text: string, idx: number) => text += items[idx].str, "")
-
-            const numMatches = typicalSections
-                .map((sec) => text.includes(sec))
-                .reduce((a, b) => a + b, 0);
-
-            if (numMatches > maxNumMatches && height > sectionHeight) {
-                sectionHeight = height;
-                maxNumMatches = numMatches;
-            }
-        });
-
-        const referenceTitles = ["References", "Bibliography"];
-        var referencesStart = undefined;
-        for (const title of referenceTitles) {
-            for (const idx of indicesOfHeight.get(sectionHeight)) {
-                if (items[idx].str.includes(title)) {
-                    referencesStart = idx;
-                    break;
-                }
-            }
-        }
-
-        if (referencesStart === undefined) { return null; }
-
-        var text = "";
-        for (var i = referencesStart; i < items.length; i++) {
-            text += items[i].str + " ";
-        }
-
-        return this._normalize(text);
-    }
-
-    async *_iterateHorizontalText(start: number, end: number): AsyncGenerator<TextItem, void, void> {
-        for (var i = start; i <= end; i++) {
-            const page = await this.pdf.getPage(i);
-            const textContent = await page.getTextContent();
-        
-            for (const elem of textContent.items) {
-                const item = elem as TextItem;
-                // only consider horizontal text
-                if (Math.abs(item.transform[1]) > 0 || Math.abs(item.transform[2]) > 0) continue;
-        
-                yield item;
-            }
-        }
-    }
-
-    _setDocumentTitle(text: string) {
+    private _setDocumentTitle(text: string) {
         // In case we're in an iframe, set the top document's title too
         top.document.title = text;
 
@@ -196,7 +107,7 @@ class PDFViewer {
         document.body.insertAdjacentElement("beforebegin", head);
     }
 
-    async _addLinkToText(str: string, url: string, pageIdx: number, tooltip: string) {
+    private async _addLinkToText(str: string, url: string, pageIdx: number, tooltip: string) {
         const als = document.getElementsByClassName("annotationLayer");
         if (als.length < pageIdx) return;
 
@@ -207,7 +118,7 @@ class PDFViewer {
         var idx: number[] = [];
         var items: TextItem[] = [];
 
-        const page = await this.pdf.getPage(pageIdx);
+        const page = await this.doc.pdf.getPage(pageIdx);
         const textContent = await page.getTextContent();
     
         for (const elem of textContent.items) {
@@ -320,7 +231,7 @@ function setScaleValue(value: string) {
     VIEWER.viewer.currentScaleValue = value;
 }
 
-function prepareBody(): HTMLDivElement {
+export function prepareBody(): HTMLDivElement {
     const viewer = document.createElement("div");
     viewer.setAttribute("class", "pdfViewer");
     
