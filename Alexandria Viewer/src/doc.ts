@@ -15,7 +15,7 @@ export class AcademicDocumentProxy {
     }
 
     async loadTitle(): Promise<string> {
-        if (this._title !== null) {
+        if (this._title !== undefined) {
             return this._title;
         }
 
