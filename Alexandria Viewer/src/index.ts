@@ -13,12 +13,12 @@ if (document.contentType == "application/pdf") {
     addEventListeners();
 }
 
-export class PDFViewer {
+class PDFViewer {
 
     url: String
     doc: AcademicDocumentProxy
     container: HTMLDivElement;
-    viewer: pv.PDFViewer | undefined;
+    viewer: pv.PDFViewer;
 
     constructor(url: String, container: HTMLDivElement) {
         this.url = url;
@@ -56,9 +56,9 @@ export class PDFViewer {
             return getAuthors(title);
         });
         const titleAndAuthors = Promise.all([title, authors]);
-        const refs = this.doc.loadSection("References");
+        const refs = await this.doc.loadReferences();
 
-        eventBus.on("annotationlayerrendered", (event: any) => {
+        eventBus.on("annotationlayerrendered", async (event: any) => {
             titleAndAuthors.then(res => {
                 const [title, authors] = res;
 
@@ -68,29 +68,20 @@ export class PDFViewer {
                 }
             });
 
-            refs.then(refs => {
-                var keywordToCitation = new Map();
-                var keyword = null;
-                var j = 0;
-                for (var i = 0; i < refs.length; i++) {
-                    if (refs[i] == "[") {
-                        if (keyword !== null) {
-                            const cit = refs.substring(j+1, i);
-                            keywordToCitation.set(keyword, cit.trim());
-                            keyword = null;
-                        }
-                        j = i;
-                    }
-                    else if (refs[i] == "]") {
-                        keyword = refs.substring(j+1, i);
-                        j = i;
-                    }
-                }
+            // Iterate through all citations, add links where we can match citation keywords
+            // for (const [item, occurences] of this.doc.iterateCitations(event.pageNumber)) {    
+            //     var links: [string, string, number, number][] = new Array();
+            //     for (const [start, end] of occurences) {
+            //         const keyword = item.str.substring(start, end);
+            //         const ref = refs.get(keyword);
+            //         if (ref === undefined) continue;
 
-                keywordToCitation.forEach((citation, keyword) => {
-                    this._addLinkToText(keyword, googleScholarQueryURL(citation), event.pageNumber, citation);
-                });
-            });
+            //         const url = googleScholarQueryURL(ref);
+            //         links.push([url, ref, start, end]);
+            //     }
+
+            //     this._addLinksToTextItem(event.pageNumber, item, links);
+            // }
         });
     }
 
@@ -107,18 +98,12 @@ export class PDFViewer {
         document.body.insertAdjacentElement("beforebegin", head);
     }
 
-    private async _addLinkToText(str: string, url: string, pageIdx: number, tooltip: string) {
-        const als = document.getElementsByClassName("annotationLayer");
-        if (als.length < pageIdx) return;
-
-        const annotationLayer = als[pageIdx-1] as HTMLElement;
-        annotationLayer.hidden = false;
-
+    private async _addLinkToText(str: string, url: string, pageNumber: number, tooltip: string) {
         var text = "";
         var idx: number[] = [];
         var items: TextItem[] = [];
 
-        const page = await this.doc.pdf.getPage(pageIdx);
+        const page = await this.doc.pdf.getPage(pageNumber);
         const textContent = await page.getTextContent();
     
         for (const elem of textContent.items) {
@@ -134,30 +119,56 @@ export class PDFViewer {
         const k = text.indexOf(str);
         if (k >= 0) {            
             idx.forEach((i, j) => {
-                if (i >= k && i < k + str.length) {
-                    const item = items[j];
-
-                    const a = document.createElement("a");
-                    a.setAttribute("title", tooltip);
-                    a.setAttribute("id", "alexandria-url-google-scholar");
-                    a.setAttribute("href", url);
-                    a.setAttribute("target", "_blank");
-
-                    const pageHeight = page.view[3] - page.view[1];
-                    const top = pageHeight - (item.transform[5] + item.height);
-                    const section = document.createElement("section");
-                    section.style.zIndex = "10";
-                    section.style.left = `calc(var(--scale-factor)*${item.transform[4]}px)`;
-                    section.style.top = `calc(var(--scale-factor)*${top}px)`;
-                    section.style.height = `calc(var(--scale-factor)*${item.height}px)`;
-                    section.style.width = `calc(var(--scale-factor)*${item.width}px)`;
-                    section.setAttribute("class", "linkAnnotation");
-                    section.appendChild(a);
-
-                    annotationLayer.appendChild(section);
+                const item = items[j];
+                if (k >= i && k < i + item.str.length) {
+                    this._addLinksToTextItem(pageNumber, item, [[url, tooltip, 0, item.str.length]]);
                 }
             });
         }
+    }
+
+    private async _addLinksToTextItem(pageNumber: number, item: TextItem, links: [url: string, tooltip: string, start: number, end: number][]) {
+        const als = document.getElementsByClassName("annotationLayer");
+        if (als.length < pageNumber) return;
+
+        const annotationLayer = als[pageNumber-1] as HTMLElement;
+        annotationLayer.hidden = false;
+
+        var spanHTML = "";
+        var i = 0;
+        for (const [url, tooltip, start, end] of links) {
+            spanHTML += item.str.substring(i, start);
+            const text = item.str.substring(start, end);
+            spanHTML += `<a id="alexandria-url-google-scholar" href="${url}" title="${tooltip}" target="_blank">${text}</a>`;
+            i = end;
+        }
+        spanHTML += item.str.substring(i, item.str.length);
+
+        const page = await this.doc.pdf.getPage(pageNumber);
+        const font = page.commonObjs.get(item.fontName);
+
+        const span = document.createElement("span");
+        span.style.fontSize = `calc(var(--scale-factor)*${item.height}px)`;
+        span.role = "presentation";
+        span.dir = item.dir;
+        span.style.whiteSpace = "pre";
+        span.style.font = font.name;
+        span.style.textAlign = "start";
+        span.style.width = `calc(var(--scale-factor)*${item.width}px)`;
+        span.style.display = "block";
+        span.innerHTML = spanHTML;
+
+        const top = this.doc.pageHeight - (item.transform[5] + item.height);
+        const section = document.createElement("section");
+        section.style.zIndex = "10";
+        section.style.left = `calc(var(--scale-factor)*${item.transform[4]}px)`;
+        section.style.top = `calc(var(--scale-factor)*${top}px)`;
+        section.style.height = `calc(var(--scale-factor)*${item.height}px)`;
+        section.style.width = `calc(var(--scale-factor)*${item.width}px)`;
+        section.setAttribute("class", "linkAnnotation");
+        section.appendChild(span);
+
+        annotationLayer.appendChild(section);
     }
 
     _normalize(str: string): string {
