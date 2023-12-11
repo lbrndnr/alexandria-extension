@@ -11,6 +11,7 @@ export class AcademicDocumentProxy {
     private _title: string;
     private _references: Map<string, string>;
     pageHeight: number
+    private _fontNames = new Map<string, string>();
 
     constructor(pdf: PDFDocumentProxy) {
         this.pdf = pdf;
@@ -125,7 +126,6 @@ export class AcademicDocumentProxy {
             const page = await this.pdf.getPage(i);
             const textContent = await page.getTextContent();
             if (this.pageHeight === undefined) this.pageHeight = page.view[3] - page.view[1];
-            console.log(page.commonObjs);
         
             for (const elem of textContent.items) {
                 const item = elem as TextItem;
@@ -159,6 +159,19 @@ export class AcademicDocumentProxy {
                 yield [item, cits];
             }
         }
+    }
+
+    async resolveFontName(pageNumber: number, fontName: string): Promise<string> {
+        let resolvedFontName = this._fontNames.get(fontName);
+        if (resolvedFontName !== undefined) {
+            return resolvedFontName;
+        }
+
+        const page = await this.pdf.getPage(pageNumber);
+        resolvedFontName = page.commonObjs.get(fontName).name;
+        this._fontNames.set(fontName, resolvedFontName);
+
+        return resolvedFontName;
     }
 
 }

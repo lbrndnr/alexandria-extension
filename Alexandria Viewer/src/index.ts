@@ -59,6 +59,7 @@ class PDFViewer {
         const refs = await this.doc.loadReferences();
 
         eventBus.on("annotationlayerrendered", async (event: any) => {
+            console.log(event.pageNumber);
             titleAndAuthors.then(res => {
                 const [title, authors] = res;
 
@@ -69,19 +70,19 @@ class PDFViewer {
             });
 
             // Iterate through all citations, add links where we can match citation keywords
-            // for (const [item, occurences] of this.doc.iterateCitations(event.pageNumber)) {    
-            //     var links: [string, string, number, number][] = new Array();
-            //     for (const [start, end] of occurences) {
-            //         const keyword = item.str.substring(start, end);
-            //         const ref = refs.get(keyword);
-            //         if (ref === undefined) continue;
+            for await (const [item, occurences] of this.doc.iterateCitations(event.pageNumber)) {    
+                var links: [string, string, number, number][] = new Array();
+                for (const [start, end] of occurences) {
+                    const keyword = item.str.substring(start, end);
+                    const ref = refs.get(keyword);
+                    if (ref === undefined) continue;
 
-            //         const url = googleScholarQueryURL(ref);
-            //         links.push([url, ref, start, end]);
-            //     }
+                    const url = googleScholarQueryURL(ref);
+                    links.push([url, ref, start, end]);
+                }
 
-            //     this._addLinksToTextItem(event.pageNumber, item, links);
-            // }
+                this._addLinksToTextItem(event.pageNumber, item, links);
+            }
         });
     }
 
@@ -128,10 +129,10 @@ class PDFViewer {
     }
 
     private async _addLinksToTextItem(pageNumber: number, item: TextItem, links: [url: string, tooltip: string, start: number, end: number][]) {
-        const als = document.getElementsByClassName("annotationLayer");
-        if (als.length < pageNumber) return;
+        const als = document.querySelectorAll(`[data-page-number="${pageNumber}"] > .annotationLayer`);
+        if (als.length != 1) return;
 
-        const annotationLayer = als[pageNumber-1] as HTMLElement;
+        const annotationLayer = als[0] as HTMLElement;
         annotationLayer.hidden = false;
 
         var spanHTML = "";
@@ -144,18 +145,15 @@ class PDFViewer {
         }
         spanHTML += item.str.substring(i, item.str.length);
 
-        const page = await this.doc.pdf.getPage(pageNumber);
-        const font = page.commonObjs.get(item.fontName);
-
         const span = document.createElement("span");
-        span.style.fontSize = `calc(var(--scale-factor)*${item.height}px)`;
         span.role = "presentation";
         span.dir = item.dir;
-        span.style.whiteSpace = "pre";
-        span.style.font = font.name;
-        span.style.textAlign = "start";
-        span.style.width = `calc(var(--scale-factor)*${item.width}px)`;
+        span.style.width = "100%";
         span.style.display = "block";
+        span.style.fontSize = `calc(var(--scale-factor)*${item.height}px)`;
+        span.style.font = await this.doc.resolveFontName(pageNumber, item.fontName);
+        span.style.textAlignLast = "justify";
+        span.style.whiteSpace = "nowrap";
         span.innerHTML = spanHTML;
 
         const top = this.doc.pageHeight - (item.transform[5] + item.height);
@@ -166,6 +164,7 @@ class PDFViewer {
         section.style.height = `calc(var(--scale-factor)*${item.height}px)`;
         section.style.width = `calc(var(--scale-factor)*${item.width}px)`;
         section.setAttribute("class", "linkAnnotation");
+        section.style.opacity = "0";
         section.appendChild(span);
 
         annotationLayer.appendChild(section);
