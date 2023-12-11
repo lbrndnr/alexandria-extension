@@ -59,13 +59,20 @@ class PDFViewer {
         const refs = await this.doc.loadReferences();
 
         eventBus.on("annotationlayerrendered", async (event: any) => {
-            console.log(event.pageNumber);
-            titleAndAuthors.then(res => {
+            if (event.pageNumber != 1) return;
+            titleAndAuthors.then(async res => {
                 const [title, authors] = res;
 
-                this._addLinkToText(title, googleScholarQueryURL(title), event.pageNumber, "Search on Google Scholar");
+                for await (const [item, s, e] of this.doc.iterateOccurences(event.pageNumber, title)) { 
+                    // const link = [googleScholarQueryURL(title), "Search on Google Scholar", s, e];
+                    this._addLinksToTextItem(event.pageNumber, item, [[googleScholarQueryURL(title), "Search on Google Scholar", s, e]]);
+                }   
+
                 for (const author of authors) {
-                    this._addLinkToText(author, googleScholarQueryURL(author), event.pageNumber, "Search on Google Scholar");
+                    for await (const [item, s, e] of this.doc.iterateOccurences(event.pageNumber, author)) { 
+                        // const link = [googleScholarQueryURL(author), "Search on Google Scholar", s, e];
+                        this._addLinksToTextItem(event.pageNumber, item, [[googleScholarQueryURL(author), "Search on Google Scholar", s, e]]);
+                    }   
                 }
             });
 
@@ -97,35 +104,6 @@ class PDFViewer {
         head.appendChild(title);
 
         document.body.insertAdjacentElement("beforebegin", head);
-    }
-
-    private async _addLinkToText(str: string, url: string, pageNumber: number, tooltip: string) {
-        var text = "";
-        var idx: number[] = [];
-        var items: TextItem[] = [];
-
-        const page = await this.doc.pdf.getPage(pageNumber);
-        const textContent = await page.getTextContent();
-    
-        for (const elem of textContent.items) {
-            const item = elem as TextItem;
-            if (item.str.length == 0) continue;
-
-            items.push(item);
-            idx.push(text.length);
-            text += item.str + " ";
-            text = this._normalize(text);
-        }
-
-        const k = text.indexOf(str);
-        if (k >= 0) {            
-            idx.forEach((i, j) => {
-                const item = items[j];
-                if (k >= i && k < i + item.str.length) {
-                    this._addLinksToTextItem(pageNumber, item, [[url, tooltip, 0, item.str.length]]);
-                }
-            });
-        }
     }
 
     private async _addLinksToTextItem(pageNumber: number, item: TextItem, links: [url: string, tooltip: string, start: number, end: number][]) {
@@ -190,9 +168,9 @@ async function getAuthors(title: string): Promise<string[] | null> {
     const parser = new XMLParser();
     const body = parser.parse(text);
     for (const entry of body.feed.entry) {
-        const asdf = entry.title.replace(/\s+/g, " ");
+        const val = entry.title.replace(/\s+/g, " ");
 
-        if (asdf.toLowerCase() == title.toLowerCase()) {
+        if (val.toLowerCase() == title.toLowerCase()) {
             return entry.author.map((a: any) => { return a.name });
         }
     }

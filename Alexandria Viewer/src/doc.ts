@@ -137,8 +137,46 @@ export class AcademicDocumentProxy {
         }
     }
 
+    async *iterateOccurences(pageNumber: number, text: string): AsyncGenerator<[TextItem, number, number], void, void> {
+        var matchedItems = new Array<[TextItem, number, number]>();
+        var i = 0;
+
+        for await (const item of this._iterateHorizontalTextItems(pageNumber, pageNumber)) {
+            var s, e;
+            for (var j = 0; j < item.str.length; j++) {
+                if (text[i] == item.str[j]) {
+                    i++;
+                    if (s === undefined) s = j;
+                    e = j;
+                }
+                else {
+                    i = 0;
+                    s = undefined;
+                    e = undefined;
+                }
+            }
+
+            if (s !== undefined && e !== undefined) {
+                matchedItems.push([item, s, e+1]);
+            }
+            else {
+                matchedItems = [];
+            }
+
+            // we have matched all, yield all elements
+            if (i == text.length) {
+                for (const matchedItem of matchedItems) {
+                    yield matchedItem;
+                }
+            }
+            else if (text[i] == " " && i < text.length-1) {
+                i++;
+            }
+        }
+    }
+
     async *iterateCitations(pageNumber: number): AsyncGenerator<[TextItem, [number, number][]], void, void> {
-        for await (const item of this._iterateHorizontalTextItems(pageNumber, pageNumber)) {   
+        for await (const item of this._iterateHorizontalTextItems(pageNumber, pageNumber)) {
             var cits: [number, number][] = new Array(); 
             const re = /\[(.+?)\]/g;
             var m;
