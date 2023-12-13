@@ -6,10 +6,16 @@ async function loadDocument(url: string): Promise<AcademicDocumentProxy> {
     return new AcademicDocumentProxy(pdf);
 }
 
-test("extracts title", async () => {
-    const url = "https://www.usenix.org/system/files/hotcloud19-paper-lei.pdf";
-    const doc = await loadDocument(url);
-    const title = await doc.loadTitle();
+it("extracts correct title", async () => {
+    const cases = {
+        "res/lei.pdf": "Tackling Parallelization Challenges of Kernel Network Stack for Container Overlay Networks",
+        "res/miano.pdf": "A Framework for eBPF-Based Network Functions in an Era of Microservices"
+    };
+
+    for (const [url, title] of Object.entries(cases)) {
+        const doc = await loadDocument(url);
+        const title = await doc.loadTitle();
     
-    expect(title).toBe("Tackling Parallelization Challenges of Kernel Network Stack for Container Overlay Networks");
+        expect(title).toBe("Tackling Parallelization Challenges of Kernel Network Stack for Container Overlay Networks");
+    }
 });
