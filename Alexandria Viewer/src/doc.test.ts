@@ -6,7 +6,7 @@ async function loadDocument(url: string): Promise<AcademicDocumentProxy> {
     return new AcademicDocumentProxy(pdf);
 }
 
-it("extracts correct title", async () => {
+it("extracts the correct title", async () => {
     const cases = {
         "res/lei.pdf": "Tackling Parallelization Challenges of Kernel Network Stack for Container Overlay Networks",
         "res/miano.pdf": "A Framework for eBPF-Based Network Functions in an Era of Microservices",
@@ -23,18 +23,20 @@ it("extracts correct title", async () => {
 
 it("finds citations", async () => {
     const cases = {
-        "res/qiao.pdf": [2, 4],
-        "res/zhu.pdf": [1, 13]
+        "res/qiao.pdf": [2, ["31", "67", "46", "57"]],
+        "res/zhu.pdf": [1, ["2", "2", "1", "31", "38", "4", "18", "30", "39", "4", "18", "3", "14"]]
     };
 
-    for (const [url, [pageNumber, expectedCitationCount]] of Object.entries(cases)) {
+    for (const [url, [pageNumber, expectedCitations]] of Object.entries(cases)) {
         const doc = await loadDocument(url);
 
-        var citationCount = 0;
-        for await (const [item, occurences] of doc.iterateCitations(pageNumber)) {    
-            citationCount += occurences.length;
+        var citations = new Array<string>();
+        for await (const [item, ranges] of doc.iterateCitations(pageNumber as number)) {    
+            for (const [s, e] of ranges) {
+                citations.push(item.str.substring(s, e));
+            }
         }
     
-        expect(citationCount).toBe(expectedCitationCount);
+        expect(citations).toEqual(expectedCitations);
     }
 });

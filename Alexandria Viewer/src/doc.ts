@@ -177,26 +177,54 @@ export class AcademicDocumentProxy {
     }
 
     async *iterateCitations(pageNumber: number): AsyncGenerator<[TextItem, [number, number][]], void, void> {
+        var items = [];
+        var idx = [];
+        var text = "";
         for await (const item of this._iterateHorizontalTextItems(pageNumber, pageNumber)) {
-            var cits: [number, number][] = new Array(); 
-            const re = /\[(.+?)\]/g;
-            var m;
+            items.push(item);
+            idx.push(text.length);
+            text += item.str;
+        }
 
-            do {
-                m = re.exec(item.str);
-                if (m) {
-                    const keywords = m[1].split(",").map((s) => s.trim());
-                    for (const keyword of keywords) {
-                        const idx = m[1].indexOf(keyword);
-                        const start = re.lastIndex-1-m[1].length+idx;
-                        cits.push([start, start+keyword.length])
-                    }
+        var cits: [number, number][] = new Array(); 
+        const re = /\[(.+?)\]/g;
+        var m;
+
+        do {
+            m = re.exec(text);
+            if (m) {
+                const keywords = m[1].split(",").map((s) => s.trim());
+                for (const keyword of keywords) {
+                    const idx = m[1].indexOf(keyword);
+                    const start = re.lastIndex-1-m[1].length+idx;
+                    cits.push([start, start+keyword.length]);
                 }
-            } while (m);
-
-            if (cits.length > 0) {
-                yield [item, cits];
             }
+        } while (m);
+
+        function rangeOverlaps(a_start: number, a_end: number, b_start: number, b_end: number) {
+            if (a_start <= b_start && b_start < a_end) return true; // b starts in a
+            if (a_start < b_end   && b_end   <= a_end) return true; // b ends in a
+            if (b_start <  a_start && a_end   <  b_end) return true; // a in b
+            return false;
+        }
+
+        for (var i = 0; i < items.length; i++) {
+            const itemStart = idx[i];
+            const itemEnd = idx[i] + items[i].str.length;
+            var itemCits = new Array<[number, number]>();
+
+            // find every citation overlapping with the current item
+            for (const [citStart, citEnd] of cits) {
+                if (rangeOverlaps(citStart, citEnd, itemStart, itemEnd)) {
+                    const relativeStart = Math.max(citStart, itemStart) - itemStart;
+                    const relativeEnd = Math.min(citEnd, itemEnd) - itemStart;
+
+                    itemCits.push([relativeStart, relativeEnd]);
+                }
+            }
+            
+            yield [items[i], itemCits];
         }
     }
 
