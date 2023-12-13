@@ -32,6 +32,7 @@ it("finds citations", async () => {
 
         var citations = new Array<string>();
         for await (const [item, ranges] of doc.iterateCitations(pageNumber as number)) {    
+            expect(ranges.length).toBeGreaterThan(0);
             for (const [s, e] of ranges) {
                 citations.push(item.str.substring(s, e));
             }

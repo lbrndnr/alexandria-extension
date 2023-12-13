@@ -223,8 +223,10 @@ export class AcademicDocumentProxy {
                     itemCits.push([relativeStart, relativeEnd]);
                 }
             }
-            
-            yield [items[i], itemCits];
+
+            if (itemCits.length > 0) {
+                yield [items[i], itemCits];
+            }
         }
     }
 

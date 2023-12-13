@@ -59,7 +59,6 @@ class PDFViewer {
         const refs = await this.doc.loadReferences();
 
         eventBus.on("annotationlayerrendered", async (event: any) => {
-            if (event.pageNumber != 1) return;
             titleAndAuthors.then(async res => {
                 const [title, authors] = res;
 
