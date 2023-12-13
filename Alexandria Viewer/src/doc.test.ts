@@ -9,7 +9,8 @@ async function loadDocument(url: string): Promise<AcademicDocumentProxy> {
 it("extracts correct title", async () => {
     const cases = {
         "res/lei.pdf": "Tackling Parallelization Challenges of Kernel Network Stack for Container Overlay Networks",
-        "res/miano.pdf": "A Framework for eBPF-Based Network Functions in an Era of Microservices"
+        "res/miano.pdf": "A Framework for eBPF-Based Network Functions in an Era of Microservices",
+        "res/mehra.pdf": "TCP-BASED VIDEO STREAMING USING RECEIVER-DRIVEN BANDWIDTH SHARING"
     };
 
     for (const [url, expectedTitle] of Object.entries(cases)) {

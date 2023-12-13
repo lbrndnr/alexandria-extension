@@ -26,7 +26,8 @@ export class AcademicDocumentProxy {
         var maxHeight = 0;
     
         for await (const item of this._iterateHorizontalTextItems(1, 2)) {    
-            if (item.height > maxHeight) {
+            // has to be more than one character to avoid initial capitals
+            if (item.height > maxHeight && item.str.length > 1) {
                 maxHeight = item.height;
                 title = item.str;
             }
