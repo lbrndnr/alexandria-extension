@@ -24,7 +24,8 @@ it("extracts the correct title", async () => {
 it("finds citations", async () => {
     const cases = {
         "res/qiao.pdf": [2, ["31", "67", "46", "57"]],
-        "res/zhu.pdf": [1, ["2", "2", "1", "31", "38", "4", "18", "30", "39", "4", "18", "3", "14"]]
+        "res/zhu.pdf": [1, ["2", "2", "1", "31", "38", "4", "18", "30", "39", "4", "18", "3", "14"]],
+        "res/he.pdf": [1, ["1", "16", "4", "9", "10", "12", "6", "2", "20"]]
     };
 
     for (const [url, [pageNumber, expectedCitations]] of Object.entries(cases)) {
@@ -39,5 +40,18 @@ it("finds citations", async () => {
         }
     
         expect(citations).toEqual(expectedCitations);
+    }
+});
+
+it("parses references", async () => {
+    const cases = {
+        "res/he.pdf": 33
+    };
+
+    for (const [url, expectedNumReferences] of Object.entries(cases)) {
+        const doc = await loadDocument(url);
+        const refs = await doc.loadReferences();
+    
+        expect(refs.size).toEqual(expectedNumReferences);
     }
 });

@@ -76,18 +76,20 @@ class PDFViewer {
             });
 
             // Iterate through all citations, add links where we can match citation keywords
-            for await (const [item, occurences] of this.doc.iterateCitations(event.pageNumber)) {    
-                var links: [string, string, number, number][] = new Array();
-                for (const [start, end] of occurences) {
-                    const keyword = item.str.substring(start, end);
-                    const ref = refs.get(keyword);
-                    if (ref === undefined) continue;
-
-                    const url = googleScholarQueryURL(ref);
-                    links.push([url, ref, start, end]);
+            if (refs !== null) {
+                for await (const [item, occurences] of this.doc.iterateCitations(event.pageNumber)) {    
+                    var links: [string, string, number, number][] = new Array();
+                    for (const [start, end] of occurences) {
+                        const keyword = item.str.substring(start, end);
+                        const ref = refs.get(keyword);
+                        if (ref === undefined) continue;
+    
+                        const url = googleScholarQueryURL(ref);
+                        links.push([url, ref, start, end]);
+                    }
+    
+                    this._addLinksToTextItem(event.pageNumber, item, links);
                 }
-
-                this._addLinksToTextItem(event.pageNumber, item, links);
             }
         });
     }

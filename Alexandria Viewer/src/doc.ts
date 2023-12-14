@@ -46,6 +46,11 @@ export class AcademicDocumentProxy {
         }
 
         const refs = await this.loadSection("References");
+        if (refs === null) {
+            this._references = null;
+            return this._references;
+        }
+
         this._references = new Map();
         var keyword = null;
         var j = 0;
@@ -101,11 +106,11 @@ export class AcademicDocumentProxy {
             }
         });
 
-        const referenceTitles = ["References", "Bibliography"];
+        const referenceTitles = ["references", "bibliography"];
         var referencesStart = undefined;
         for (const title of referenceTitles) {
             for (const idx of indicesOfHeight.get(sectionHeight)) {
-                if (items[idx].str.includes(title)) {
+                if (items[idx].str.toLowerCase().includes(title)) {
                     referencesStart = idx;
                     break;
                 }
