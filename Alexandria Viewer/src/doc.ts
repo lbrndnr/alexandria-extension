@@ -5,6 +5,10 @@ function _normalize(str: string): string {
     return str.replace(/\s+/g, " ");
 }
 
+enum Section {
+    References
+}
+
 export class AcademicDocumentProxy {
 
     pdf: PDFDocumentProxy;
@@ -45,7 +49,7 @@ export class AcademicDocumentProxy {
             return this._references;
         }
 
-        const refs = await this.loadSection("References");
+        const refs = await this.loadSection(Section.References);
         if (refs === null) {
             this._references = null;
             return this._references;
@@ -69,10 +73,16 @@ export class AcademicDocumentProxy {
             }
         }
 
+        // insert last references if we already have a keyword
+        if (keyword !== null) {
+            const cit = refs.substring(j+1, refs.length);
+            this._references.set(keyword, cit.trim());
+        }
+
         return this._references;
     }
 
-    async loadSection(name: string): Promise<string> {
+    async loadSection(section: Section): Promise<string> {
         var items = Array<TextItem>();
         var indicesOfHeight = new Map();
 
@@ -90,11 +100,11 @@ export class AcademicDocumentProxy {
             items.push(item);
         }
 
-        const typicalSections = ["Introduction", "Background", "Results", "Conclusion", "Discussion", "References", "Bibliography"];
+        const typicalSections = ["introduction", "background", "results", "conclusion", "discussion", "references", "bibliography"];
         var sectionHeight = 0;
         var maxNumMatches = 0;
         indicesOfHeight.forEach((indices, height) => {
-            const text = indices.reduce((text: string, idx: number) => text += items[idx].str, "")
+            const text = indices.reduce((text: string, idx: number) => text += items[idx].str.toLowerCase(), "")
 
             const numMatches = typicalSections
                 .map((sec) => text.includes(sec))
@@ -106,9 +116,8 @@ export class AcademicDocumentProxy {
             }
         });
 
-        const referenceTitles = ["references", "bibliography"];
         var referencesStart = undefined;
-        for (const title of referenceTitles) {
+        for (const title of this.possibleTitlesForSection(section)) {
             for (const idx of indicesOfHeight.get(sectionHeight)) {
                 if (items[idx].str.toLowerCase().includes(title)) {
                     referencesStart = idx;
@@ -246,6 +255,14 @@ export class AcademicDocumentProxy {
         this._fontNames.set(fontName, resolvedFontName);
 
         return resolvedFontName;
+    }
+
+    private possibleTitlesForSection(section: Section): string[] {
+        if (section == Section.References) {
+            return ["references", "bibliography"];
+        }
+
+        return [];
     }
 
 }

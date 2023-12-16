@@ -52,6 +52,7 @@ it("parses references", async () => {
         const doc = await loadDocument(url);
         const refs = await doc.loadReferences();
     
+        expect(refs).not.toBeNull();
         expect(refs.size).toEqual(expectedNumReferences);
     }
 });
