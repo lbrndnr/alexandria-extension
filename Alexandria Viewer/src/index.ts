@@ -6,8 +6,8 @@ import { AcademicDocumentProxy } from "./doc";
 
 pl.GlobalWorkerOptions.workerSrc = require("pdfjs-dist/build/pdf.worker.entry");
 
-var VIEWER: PDFViewer = null;
-var SCALE_VALUE = "page-width";
+let VIEWER: PDFViewer = null;
+let SCALE_VALUE = "page-width";
 
 if (document.contentType == "application/pdf") {
     addEventListeners();
@@ -82,7 +82,7 @@ class PDFViewer {
             // Iterate through all citations, add links where we can match citation keywords
             if (refs !== null) {
                 for await (const [item, occurences] of this.doc.iterateCitations(event.pageNumber)) {    
-                    var links: [string, string, number, number][] = new Array();
+                    let links: [string, string, number, number][] = new Array();
                     for (const [start, end] of occurences) {
                         const keyword = item.str.substring(start, end);
                         const ref = refs.get(keyword);
@@ -118,8 +118,8 @@ class PDFViewer {
         const annotationLayer = als[0] as HTMLElement;
         annotationLayer.hidden = false;
 
-        var spanHTML = "";
-        var i = 0;
+        let spanHTML = "";
+        let i = 0;
         for (const [url, tooltip, start, end] of links) {
             spanHTML += item.str.substring(i, start);
             const text = item.str.substring(start, end);
