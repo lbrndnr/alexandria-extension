@@ -152,7 +152,7 @@ export class AcademicDocumentProxy {
         }
     }
 
-    async *iterateOccurences(pageNumber: number, text: string): AsyncGenerator<[TextItem, number, number], void, void> {
+    async *iterateOccurences(pageNumber: number, text: string): AsyncGenerator<[TextItem, number, number][], void, void> {
         var matchedItems = new Array<[TextItem, number, number]>();
         var i = 0;
 
@@ -180,9 +180,7 @@ export class AcademicDocumentProxy {
 
             // we have matched all, yield all elements
             if (i == text.length) {
-                for (const matchedItem of matchedItems) {
-                    yield matchedItem;
-                }
+                yield matchedItems;
             }
             else if (text[i] == " " && i < text.length-1) {
                 i++;

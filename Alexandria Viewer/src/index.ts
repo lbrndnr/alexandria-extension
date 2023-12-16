@@ -62,16 +62,20 @@ class PDFViewer {
             titleAndAuthors.then(async res => {
                 const [title, authors] = res;
 
-                for await (const [item, s, e] of this.doc.iterateOccurences(event.pageNumber, title)) { 
-                    // const link = [googleScholarQueryURL(title), "Search on Google Scholar", s, e];
-                    this._addLinksToTextItem(event.pageNumber, item, [[googleScholarQueryURL(title), "Search on Google Scholar", s, e]]);
+                for await (const occurences of this.doc.iterateOccurences(event.pageNumber, title)) { 
+                    for (const [item, s, e] of occurences) {
+                        this._addLinksToTextItem(event.pageNumber, item, [[googleScholarQueryURL(title), "Search on Google Scholar", s, e]]);
+                    }
                 }   
 
-                for (const author of authors) {
-                    for await (const [item, s, e] of this.doc.iterateOccurences(event.pageNumber, author)) { 
-                        // const link = [googleScholarQueryURL(author), "Search on Google Scholar", s, e];
-                        this._addLinksToTextItem(event.pageNumber, item, [[googleScholarQueryURL(author), "Search on Google Scholar", s, e]]);
-                    }   
+                if (authors !== null) {
+                    for (const author of authors) {
+                        for await (const occurences of this.doc.iterateOccurences(event.pageNumber, author)) { 
+                            for (const [item, s, e] of occurences) {
+                                this._addLinksToTextItem(event.pageNumber, item, [[googleScholarQueryURL(author), "Search on Google Scholar", s, e]]);
+                            }
+                        }   
+                    }
                 }
             });
 
@@ -168,6 +172,10 @@ async function getAuthors(title: string): Promise<string[] | null> {
     const text = await res.text();
     const parser = new XMLParser();
     const body = parser.parse(text);
+    if (body.feed.entry === undefined) {
+        return null;
+    }
+
     for (const entry of body.feed.entry) {
         const val = entry.title.replace(/\s+/g, " ");
 
