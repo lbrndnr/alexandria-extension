@@ -84,41 +84,39 @@ export class AcademicDocumentProxy {
 
     async loadSection(section: Section): Promise<string> {
         var items = Array<TextItem>();
-        var indicesOfHeight = new Map();
+        var indicesWithFont = new Map();
 
         for await (const item of this._iterateHorizontalTextItems(1, this.pdf.numPages)) {  
             if (item.str.length == 0) continue;
-            const height = Math.ceil(item.height * 100);
 
-            if (indicesOfHeight.has(height)) {
-                const indices = indicesOfHeight.get(height);
+            if (indicesWithFont.has(item.fontName)) {
+                const indices = indicesWithFont.get(item.fontName);
                 indices.push(items.length);
             }
             else {
-                indicesOfHeight.set(height, [items.length]);
+                indicesWithFont.set(item.fontName, [items.length]);
             }
             items.push(item);
         }
 
-        const typicalSections = ["introduction", "background", "results", "conclusion", "discussion", "references", "bibliography"];
-        var sectionHeight = 0;
+        const typicalSections = ["abstract", "introduction", "background", "references", "bibliography"];
+        var sectionFont = null;
         var maxNumMatches = 0;
-        indicesOfHeight.forEach((indices, height) => {
-            const text = indices.reduce((text: string, idx: number) => text += items[idx].str.toLowerCase(), "")
-
+        indicesWithFont.forEach((indices, fontName) => {
+            const text = indices.reduce((text: string, idx: number) => text += items[idx].str.toLowerCase(), "");
             const numMatches = typicalSections
                 .map((sec) => text.includes(sec))
                 .reduce((a, b) => a + b, 0);
 
-            if (numMatches > maxNumMatches && height > sectionHeight) {
-                sectionHeight = height;
+            if (numMatches > maxNumMatches) {
+                sectionFont = fontName;
                 maxNumMatches = numMatches;
             }
         });
 
         var referencesStart = undefined;
         for (const title of this.possibleTitlesForSection(section)) {
-            for (const idx of indicesOfHeight.get(sectionHeight)) {
+            for (const idx of indicesWithFont.get(sectionFont)) {
                 if (items[idx].str.toLowerCase().includes(title)) {
                     referencesStart = idx;
                     break;
