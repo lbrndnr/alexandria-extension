@@ -141,7 +141,7 @@ class PDFViewer {
 
         const top = this.doc.pageHeight - (item.transform[5] + item.height);
         const section = document.createElement("section");
-        section.style.zIndex = "10";
+        section.style.zIndex = "100";
         section.style.left = `calc(var(--scale-factor)*${item.transform[4]}px)`;
         section.style.top = `calc(var(--scale-factor)*${top}px)`;
         section.style.height = `calc(var(--scale-factor)*${item.height}px)`;

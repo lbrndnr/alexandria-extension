@@ -61,9 +61,10 @@ describe("loads all references", () => {
         it(url, async () => {
             const doc = await loadDocument(url);
             const refs = await doc.loadReferences();
+            const expectedRefs = Array.from({length: expectedNumReferences}, (x, i) => String(i + 1));
         
             expect(refs).not.toBeNull();
-            expect(refs.size).toEqual(expectedNumReferences);
+            expect(Array.from(refs.keys())).toEqual(expect.arrayContaining(expectedRefs))
         });
     }
 });
