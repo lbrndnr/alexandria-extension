@@ -1,5 +1,6 @@
 import { PDFDocumentProxy } from "pdfjs-dist";
 import { TextItem } from "pdfjs-dist/types/src/display/api";
+import { SemanticScholar } from 'semanticscholarjs';
 
 function _normalize(str: string): string {
     return str.replace(/\s+/g, " ");
@@ -8,6 +9,8 @@ function _normalize(str: string): string {
 enum Section {
     References
 }
+
+const sch = new SemanticScholar();
 
 export class AcademicDocumentProxy {
 
@@ -21,26 +24,40 @@ export class AcademicDocumentProxy {
         this.pdf = pdf;
     }
 
+    private async _loadMeta(query: string) {
+        const search = await sch.search_paper(query, null, null, null, null, null, ["url", "title", "authors", "references"]);
+        if (search.Total == 0) return;
+
+        const res = await search.nextPage();
+        if (res.length > 0) {
+            this._title = res[0].title;
+        }
+    }
+
     async loadTitle(): Promise<string> {
         if (this._title !== undefined) {
             return this._title;
         }
 
         var title = "";
+        var titleFont = undefined;
         var maxHeight = 0;
     
         for await (const item of this._iterateHorizontalTextItems(1, 2)) {    
             // has to be more than one character to avoid initial capitals
             if (item.height > maxHeight && item.str.length > 1) {
                 maxHeight = item.height;
+                titleFont = item.fontName;
                 title = item.str;
             }
-            else if (item.height == maxHeight) {
+            else if (item.height == maxHeight && item.fontName == titleFont) {
                 title += " " + item.str;
             }
         }
-    
-        this._title = _normalize(title);
+
+        await this._loadMeta(title);
+        if (this._title === undefined) this._title = title;
+        
         return this._title;
     }
 
