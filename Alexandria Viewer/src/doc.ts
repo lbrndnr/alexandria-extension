@@ -32,25 +32,28 @@ export class AcademicDocumentProxy {
             return this._title;
         }
 
+        let line = "";
         let title = "";
         let titleFont = undefined;
         let maxHeight = 0;
     
-        for await (const item of this._iterateHorizontalTextItems(1, 2)) {    
+        for await (const item of this._iterateHorizontalTextItems(1, 2)) {             
+            line = _appendTextItem(line, item, false);
+
             // has to be more than one character to avoid initial capitals
             if (item.height > maxHeight && item.str.length > 1) {
                 maxHeight = item.height;
                 titleFont = item.fontName;
-                title = item.str;
+                title = line;
             }
             else if (item.height == maxHeight && item.fontName == titleFont) {
                 title += " " + item.str;
             }
+
+            if (item.hasEOL) line = "";
         }
 
-        await this._loadMeta(title);
-        this._title = this._meta?.title ?? title;
-        
+        this._title = title;
         return this._title;
     }
 
@@ -244,4 +247,14 @@ export class AcademicDocumentProxy {
         return resolvedFontName;
     }
 
+}
+
+export function _appendTextItem(text: string, item: TextItem, appendNewLine: boolean): string {
+    text += item.str;
+    if (item.hasEOL) {
+        if (text.endsWith("-")) text = text.slice(0, -1);
+        if (appendNewLine) text += "\n";
+    }
+
+    return text;
 }
