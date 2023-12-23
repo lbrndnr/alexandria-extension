@@ -32,12 +32,27 @@ export class AcademicDocumentProxy {
             return this._title;
         }
 
+        const f1 = this._loadLargestLine(1);
+        const f2 = this._loadLargestLine(2);
+        const [[t1, h1], [t2, h2]] = await Promise.all([f1, f2]);
+
+        this._title = (h2 >= h1) ? t2 : t1;
+        return this._title;
+    }
+
+    async _loadLargestLine(pageNumber: number): Promise<[string, number]> {
         let line = "";
         let title = "";
         let titleFont = undefined;
+        let currentTop = undefined;
         let maxHeight = 0;
     
-        for await (const item of this._iterateHorizontalTextItems(1, 2)) {             
+        for await (const item of this._iterateHorizontalTextItems(pageNumber, pageNumber)) {      
+            // TextItems aren't necessarily in order
+            // use the y coordinate to start a new line if necessary
+            // this works assuming that words within a line are in order
+            if (currentTop != item.transform[5]) line = "";
+            currentTop = item.transform[5];       
             line = _appendTextItem(line, item, false);
 
             // has to be more than one character to avoid initial capitals
@@ -47,14 +62,11 @@ export class AcademicDocumentProxy {
                 title = line;
             }
             else if (item.height == maxHeight && item.fontName == titleFont) {
-                title += " " + item.str;
+                title += " " + line;
             }
-
-            if (item.hasEOL) line = "";
         }
 
-        this._title = title;
-        return this._title;
+        return [title, maxHeight];
     }
 
     async loadReferences(): Promise<Map<string, string>> {

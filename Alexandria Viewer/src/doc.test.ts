@@ -11,7 +11,8 @@ describe("loads the title", () => {
         "res/lei.pdf": "Tackling Parallelization Challenges of Kernel Network Stack for Container Overlay Networks",
         "res/miano.pdf": "A Framework for eBPF-Based Network Functions in an Era of Microservices",
         "res/mehra.pdf": "TCP-BASED VIDEO STREAMING USING RECEIVER-DRIVEN BANDWIDTH SHARING",
-        "res/rajasekaran.pdf": "CASSINI: Network-Aware Job Scheduling in Machine Learning Clusters"
+        "res/rajasekaran.pdf": "CASSINI: Network-Aware Job Scheduling in Machine Learning Clusters",
+        "res/mahajan.pdf": "Themis: Fair and Efficient GPU Cluster Scheduling",
     };
 
     for (const [url, expectedTitle] of Object.entries(cases)) {
