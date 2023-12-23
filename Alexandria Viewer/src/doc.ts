@@ -19,10 +19,9 @@ export class AcademicDocumentProxy {
 
     private async _loadMeta(query: string) {
         const fields = ["url", "title", "authors", "references", "references,references.url", "references.authors"]
-        const search = await sch.search_paper(query, null, null, null, null, null, fields);
-        if (search.Total == 0) return;
-
+        const search = await sch.search_paper(query, null, null, null, null, null, fields, 5);
         const res = await search.nextPage();
+        
         if (res.length > 0) {
             this._meta = res[0];
         }
