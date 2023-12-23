@@ -264,8 +264,8 @@ export class AcademicDocumentProxy {
 export function _appendTextItem(text: string, item: TextItem, appendNewLine: boolean): string {
     text += item.str;
     if (item.hasEOL) {
-        if (text.endsWith("-")) text = text.slice(0, -1);
         if (appendNewLine) text += "\n";
+        else if (text.endsWith("-")) text = text.slice(0, -1);
     }
 
     return text;
