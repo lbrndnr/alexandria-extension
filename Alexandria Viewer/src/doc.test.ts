@@ -56,7 +56,8 @@ describe("loads all references", () => {
         "res/elokda.pdf": 66,
         "res/lei.pdf": 29,
         "res/mehra.pdf": 18,
-        "res/miano.pdf": 69
+        "res/miano.pdf": 69,
+        "res/yu.pdf": 53
     };
 
     for (const [url, expectedNumReferences] of Object.entries(cases)) {
@@ -66,7 +67,11 @@ describe("loads all references", () => {
             const expectedRefs = Array.from({length: expectedNumReferences}, (x, i) => String(i + 1));
         
             expect(refs).not.toBeNull();
-            expect(Array.from(refs.keys())).toEqual(expect.arrayContaining(expectedRefs))
+            expect(Array.from(refs.keys())).toEqual(expect.arrayContaining(expectedRefs));
+
+            for (const ref of refs.values()) {
+                expect(ref.length).toBeGreaterThan(0);
+            }
         });
     }
 });

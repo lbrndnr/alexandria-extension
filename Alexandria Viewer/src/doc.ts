@@ -1,3 +1,4 @@
+import { iteratePattern, appendTextItem } from "./utils";
 import { PDFDocumentProxy } from "pdfjs-dist";
 import { TextItem } from "pdfjs-dist/types/src/display/api";
 import { SemanticScholar, Paper } from 'semanticscholarjs';
@@ -53,7 +54,7 @@ export class AcademicDocumentProxy {
             // this works assuming that words within a line are in order
             if (currentTop != item.transform[5]) line = "";
             currentTop = item.transform[5];       
-            line = _appendTextItem(line, item, false);
+            line = appendTextItem(line, item, false)[0];
 
             // has to be more than one character to avoid initial capitals
             if (item.height > maxHeight && item.str.length > 1) {
@@ -75,57 +76,51 @@ export class AcademicDocumentProxy {
         }
 
         // we first query SemanticScholar
-        if (this._meta === undefined) {
-            await this.loadTitle();
-        }
+        // if (this._meta === undefined) {
+        //     await this.loadTitle();
+        // }
 
         // gather all text with the respective letter sizes
         let text = "";
         let letterSizes = new Array<number>();
         for await (const item of this._iterateHorizontalTextItems(1, this.pdf.numPages)) {
-            text = _appendTextItem(text, item, true);
+            let s, e;
+            const textLength = text.length;
+            [text, [s, e]] = appendTextItem(text, item, true);
 
-            const sizes = Array(item.str.length).fill(item.height);
+            const sizes = Array(text.length-textLength).fill(0);
             letterSizes.concat(sizes);
+            for (let i = s; i < e; i++) letterSizes[i] = item.height;
         }
 
         // find the largest reference/bibliography text
         let re = /(references|bibliography)/gi;
-        let m;
         let maxHeight = 0;
         let refStart = 0;
 
-        do {
-            m = re.exec(text);
-            if (m) {
-                const e = re.lastIndex-1;
-                const s = e-m[1].length;
-    
-                const height = letterSizes.slice(s, e).reduce((a, b) => a + b, 0) / (e-s);
-                if (height > maxHeight) {
-                    maxHeight = height;
-                    refStart = s;
-                }
-            }
-        } while (m);
+        for (const [s, e] of iteratePattern(re, text)) {
+            const height = letterSizes.slice(s, e).reduce((a, b) => a + b, 0) / (e-s);
+            if (height > maxHeight) {
+                maxHeight = height;
+                refStart = s;
+            }   
+        }
 
         this._references = new Map();
         let keyword = null;
-
+        text = text.slice(refStart);
+        re = /\[\d+\]/gi;
         let j = 0;
-        for (let i = refStart; i < text.length; i++) {
-            if (text[i] == "[") {
-                if (keyword !== null) {
-                    const cit = text.substring(j+1, i);
-                    this._references.set(keyword, cit.trim());
-                    keyword = null;
-                }
-                j = i;
+        
+        for (const [s, e] of iteratePattern(re, text)) {
+            if (keyword !== null) {
+                const cit = text.slice(j, s).trim();
+                this._references.set(keyword, cit);
             }
-            else if (text[i] == "]") {
-                keyword = text.substring(j+1, i);
-                j = i;
-            }
+
+            keyword = text.slice(s+1, e-1);
+            j = e;
+
         }
 
         // insert last references if we already have a keyword
@@ -259,14 +254,4 @@ export class AcademicDocumentProxy {
         return resolvedFontName;
     }
 
-}
-
-export function _appendTextItem(text: string, item: TextItem, appendNewLine: boolean): string {
-    text += item.str;
-    if (item.hasEOL) {
-        if (appendNewLine) text += "\n";
-        else if (text.endsWith("-")) text = text.slice(0, -1);
-    }
-
-    return text;
 }
