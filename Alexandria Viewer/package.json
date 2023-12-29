@@ -1,5 +1,5 @@
 {
-  "name": "alexandria-viewer",
+  "title": "alexandria-viewer",
   "version": "1.0.0",
   "description": "Alexandria PDF Viewer",
   "main": "index.ts",

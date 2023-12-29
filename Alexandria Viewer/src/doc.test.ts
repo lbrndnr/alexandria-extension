@@ -1,5 +1,33 @@
 import * as pl from "pdfjs-dist";
 import { AcademicDocumentProxy } from "./doc";
+import * as fs from "fs";
+import * as path from "path";
+
+interface PDFTestCase {
+    title: string,
+    remoteURL: string,
+    localURL: string,
+    path: string,
+}
+
+function loadTestCases(): Array<PDFTestCase> {
+    const dir = "res";
+    const files = fs.readdirSync(dir)
+                    .filter(f => path.extname(f).toLowerCase() === ".json");
+
+    var cases = new Array<PDFTestCase>;
+    for (const file of files) {
+        const url = path.join(dir, file);
+        const data = fs.readFileSync(url, "utf8");
+        var config = JSON.parse(data) as PDFTestCase;
+        config.localURL = path.join(dir, path.basename(file, ".json") + ".pdf");
+        config.path = url;
+
+        cases.push(config);
+    }
+
+    return cases;
+}
 
 async function loadDocument(url: string): Promise<AcademicDocumentProxy> {
     const pdf = await pl.getDocument(url).promise;
@@ -7,20 +35,13 @@ async function loadDocument(url: string): Promise<AcademicDocumentProxy> {
 }
 
 describe("loads the title", () => {
-    const cases = {
-        "res/lei.pdf": "Tackling Parallelization Challenges of Kernel Network Stack for Container Overlay Networks",
-        "res/miano.pdf": "A Framework for eBPF-Based Network Functions in an Era of Microservices",
-        "res/mehra.pdf": "TCP-BASED VIDEO STREAMING USING RECEIVER-DRIVEN BANDWIDTH SHARING",
-        "res/rajasekaran.pdf": "CASSINI: Network-Aware Job Scheduling in Machine Learning Clusters",
-        "res/mahajan.pdf": "Themis: Fair and Efficient GPU Cluster Scheduling",
-    };
-
-    for (const [url, expectedTitle] of Object.entries(cases)) {
-        it(url, async () => {
-            const doc = await loadDocument(url);
+    const cases = loadTestCases();
+    for (const c of cases) {
+        it(c.path, async () => {
+            const doc = await loadDocument(c.localURL);
             const title = await doc.loadTitle();
         
-            expect(title).toBe(expectedTitle);
+            expect(title).toBe(c.title);
         });
     }
 });
