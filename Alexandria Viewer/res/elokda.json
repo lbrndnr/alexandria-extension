@@ -1,4 +1,7 @@
 {
     "title": "CARMA: Fair and efficient bottleneck congestion management via non-tradable karma credits",
-    "remoteURL": "https://arxiv.org/pdf/2208.07113.pdf"
+    "remoteURL": "https://arxiv.org/pdf/2208.07113.pdf",
+    "citations": [
+        [1, ["1", "2", "3", "4", "5", "6", "7", "8", "4", "9", "10", "4", "11"]]
+    ]
 }

@@ -8,6 +8,7 @@ interface PDFTestCase {
     remoteURL: string,
     localURL: string,
     path: string,
+    citations: [number, string[]][]
 }
 
 function loadTestCases(): Array<PDFTestCase> {
@@ -37,7 +38,7 @@ async function loadDocument(url: string): Promise<AcademicDocumentProxy> {
 describe("loads the title", () => {
     const cases = loadTestCases();
     for (const c of cases) {
-        it(c.path, async () => {
+        it(c.localURL, async () => {
             const doc = await loadDocument(c.localURL);
             const title = await doc.loadTitle();
         
@@ -47,26 +48,21 @@ describe("loads the title", () => {
 });
 
 describe("loads all citations", () => {
-    const cases = {
-        "res/qiao.pdf": [2, ["31", "67", "46", "57"]],
-        "res/zhu.pdf": [1, ["2", "2", "1", "31", "38", "4", "18", "30", "39", "4", "18", "3", "14"]],
-        "res/he.pdf": [1, ["1", "16", "4", "9", "10", "12", "6", "2", "20"]],
-        "res/elokda.pdf": [1, ["1", "2", "3", "4", "5", "6", "7", "8", "4", "9", "10", "4", "11"]]
-    };
-
-    for (const [url, [pageNumber, expectedCitations]] of Object.entries(cases)) {
-        it(url, async () => {
-            const doc = await loadDocument(url);
-
-            var citations = new Array<string>();
-            for await (const [item, ranges] of doc.iterateCitations(pageNumber as number)) {    
-                expect(ranges.length).toBeGreaterThan(0);
-                for (const [s, e] of ranges) {
-                    citations.push(item.str.substring(s, e));
+    const cases = loadTestCases().filter(c => c.citations !== undefined);
+    for (const c of cases) {
+        it(c.localURL, async () => {
+            const doc = await loadDocument(c.localURL);
+            for (const [pageNumber, expectedCitations] of c.citations) {
+                var citations = new Array<string>();
+                for await (const [item, ranges] of doc.iterateCitations(pageNumber)) {    
+                    expect(ranges.length).toBeGreaterThan(0);
+                    for (const [s, e] of ranges) {
+                        citations.push(item.str.substring(s, e));
+                    }
                 }
+            
+                expect(citations).toEqual(expectedCitations);
             }
-        
-            expect(citations).toEqual(expectedCitations);
         });
     }
 });
