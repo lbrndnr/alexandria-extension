@@ -1,7 +1,7 @@
 {
     "title": "RingGuard: Guard io_uring with eBPF",
     "remoteURL": "https://fengweiz.github.io/paper/ringguard-ebpf23.pdf",
-    "citations": [
+    "citationsOnPage": [
         [1, ["1", "16", "4", "9", "10", "12", "6", "2", "20"]]
     ],
     "numReferences": 33

@@ -8,7 +8,7 @@ interface PDFTestCase {
     remoteURL: string,
     localURL: string,
     path: string,
-    citations: [number, string[]][],
+    citationsOnPage: [number, string[]][],
     numReferences: number
 }
 
@@ -49,11 +49,11 @@ describe("loads the title", () => {
 });
 
 describe("loads all citations", () => {
-    const cases = loadTestCases().filter(c => c.citations !== undefined);
+    const cases = loadTestCases().filter(c => c.citationsOnPage !== undefined);
     for (const c of cases) {
         it(c.localURL, async () => {
             const doc = await loadDocument(c.localURL);
-            for (const [pageNumber, expectedCitations] of c.citations) {
+            for (const [pageNumber, expectedCitations] of c.citationsOnPage) {
                 var citations = new Array<string>();
                 for await (const [item, ranges] of doc.iterateCitations(pageNumber)) {    
                     expect(ranges.length).toBeGreaterThan(0);
@@ -87,32 +87,25 @@ describe("loads all references", () => {
 });
 
 describe("finds the title", () => {
-    const cases = {
-        "res/qiao.pdf": [[1, 2], "Pollux: Co-adaptive Cluster Scheduling for Goodput-Optimized Deep Learning"],
-        "res/zhu.pdf": [[1], "Dissecting Service Mesh Overheads"],
-        "res/he.pdf": [[1], "RingGuard: Guard io_uring with eBPF"]
-    };
+    const cases = loadTestCases();
+    for (const c of cases) {
+        it(c.localURL, async () => {
+            const doc = await loadDocument(c.localURL);
 
-    for (const [url, [pageNumbers, expectedTitle]] of Object.entries(cases)) {
-        it(url, async () => {
-            const doc = await loadDocument(url);
-
-            for (const pageNumber of pageNumbers) {
-                for await (const occurrences of doc.iterateOccurences(pageNumber as number, expectedTitle as string)) {    
-                    var title = "";
-                    for (const [item, s, e] of occurrences) {
-                        expect(s).toBeGreaterThanOrEqual(0);
-                        expect(s).toBeLessThan(e);
-        
-                        title += item.str.substring(s, e);
-                        if (item.hasEOL) {
-                            title += " ";
-                        }
+            for await (const occurrences of doc.iterateOccurences(1, c.title)) {    
+                var title = "";
+                for (const [item, s, e] of occurrences) {
+                    expect(s).toBeGreaterThanOrEqual(0);
+                    expect(s).toBeLessThan(e);
+    
+                    title += item.str.substring(s, e);
+                    if (item.hasEOL) {
+                        title += " ";
                     }
-                    title = title.trim();
-
-                    expect(title).toBe(expectedTitle);
                 }
+                title = title.trim();
+
+                expect(title).toBe(c.title);
             }
         });
     }

@@ -1,7 +1,7 @@
 {
     "title": "Pollux: Co-adaptive Cluster Scheduling for Goodput-Optimized Deep Learning",
     "remoteURL": "https://www.usenix.org/system/files/osdi21-qiao.pdf",
-    "citations": [
+    "citationsOnPage": [
         [2, ["31", "67", "46", "57"]]
     ],
     "numReferences": 73
