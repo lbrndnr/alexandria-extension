@@ -1,4 +1,5 @@
 {
     "title": "Dissecting Performance of Production QUIC",
-    "remoteURL": "https://cs.brown.edu/~tab/papers/QUIC_WWW21.pdf"
+    "remoteURL": "https://cs.brown.edu/~tab/papers/QUIC_WWW21.pdf",
+    "numReferences": 53
 }

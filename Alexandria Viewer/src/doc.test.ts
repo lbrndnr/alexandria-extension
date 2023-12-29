@@ -8,7 +8,8 @@ interface PDFTestCase {
     remoteURL: string,
     localURL: string,
     path: string,
-    citations: [number, string[]][]
+    citations: [number, string[]][],
+    numReferences: number
 }
 
 function loadTestCases(): Array<PDFTestCase> {
@@ -68,20 +69,12 @@ describe("loads all citations", () => {
 });
 
 describe("loads all references", () => {
-    const cases = {
-        "res/he.pdf": 33,
-        "res/elokda.pdf": 66,
-        "res/lei.pdf": 29,
-        "res/mehra.pdf": 18,
-        "res/miano.pdf": 69,
-        "res/yu.pdf": 53
-    };
-
-    for (const [url, expectedNumReferences] of Object.entries(cases)) {
-        it(url, async () => {
-            const doc = await loadDocument(url);
+    const cases = loadTestCases();
+    for (const c of cases) {
+        it(c.localURL, async () => {
+            const doc = await loadDocument(c.localURL);
             const refs = await doc.loadReferences();
-            const expectedRefs = Array.from({length: expectedNumReferences}, (x, i) => String(i + 1));
+            const expectedRefs = Array.from({length: c.numReferences}, (x, i) => String(i + 1));
         
             expect(refs).not.toBeNull();
             expect(Array.from(refs.keys())).toEqual(expect.arrayContaining(expectedRefs));
