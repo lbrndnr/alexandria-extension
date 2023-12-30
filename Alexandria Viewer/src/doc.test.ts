@@ -2,6 +2,7 @@ import * as pl from "pdfjs-dist";
 import { AcademicDocumentProxy } from "./doc";
 import * as fs from "fs";
 import * as path from "path";
+import * as https from "https";
 
 interface PDFTestCase {
     title: string,
@@ -35,6 +36,37 @@ async function loadDocument(url: string): Promise<AcademicDocumentProxy> {
     const pdf = await pl.getDocument(url).promise;
     return new AcademicDocumentProxy(pdf);
 }
+
+beforeAll(() => {
+    const cases = loadTestCases();
+    for (const c of cases) {
+        if (!fs.existsSync(c.localURL)) {
+            console.log("Downloading file for", c.localURL);
+
+            return new Promise<void>((resolve, reject) => {
+                const options = {
+                    headers: {
+                        "User-Agent": "alexandria"
+                    }
+                }
+
+                const file = fs.createWriteStream(c.localURL);
+                https.get(c.remoteURL, options, res => {
+                    file.on("finish", function () {
+                            console.log("done");
+                            file.close();
+                            resolve();
+                    });
+
+                    res.pipe(file)
+                        .on("error", (err) => {
+                            reject(err);
+                    });
+                });
+            });
+        }
+    }
+}, 100000);
 
 describe("loads the title", () => {
     const cases = loadTestCases();
