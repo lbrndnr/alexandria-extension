@@ -3,6 +3,7 @@ import { TextItem } from "pdfjs-dist/types/src/display/api";
 import * as pv from "pdfjs-dist/web/pdf_viewer";
 import { XMLParser } from "fast-xml-parser";
 import { AcademicDocumentProxy } from "./doc";
+import { Rect } from "./utils";
 
 pl.GlobalWorkerOptions.workerSrc = require("pdfjs-dist/build/pdf.worker.entry");
 
@@ -95,6 +96,13 @@ class PDFViewer {
                     this._addLinksToTextItem(event.pageNumber, item, links);
                 }
             }
+
+            for await (const [name, rect] of this.doc.iterateFigures(event.pageNumber)) {
+                console.log(event.pageNumber, name, rect);
+                this._addButtonToPage(event.pageNumber, rect, () => {
+                    console.log(name);
+                });
+            }
         });
     }
 
@@ -151,6 +159,26 @@ class PDFViewer {
         section.appendChild(span);
 
         annotationLayer.appendChild(section);
+    }
+
+    private async _addButtonToPage(pageNumber: number, rect: Rect, onClick: (() => (void))) {
+        const als = document.querySelectorAll(`[data-page-number="${pageNumber}"] > .annotationLayer`);
+        if (als.length != 1) return;
+
+        const annotationLayer = als[0] as HTMLElement;
+        annotationLayer.hidden = false;
+
+        const button = document.createElement("button");
+        button.style.zIndex = "100";
+        button.style.left = `calc(var(--scale-factor)*${rect.x}px)`;
+        button.style.top = `calc(var(--scale-factor)*${rect.y}px)`;
+        button.style.height = `calc(var(--scale-factor)*${rect.height}px)`;
+        button.style.width = `calc(var(--scale-factor)*${rect.width}px)`;
+        button.setAttribute("class", "figureAnnotation");
+        button.onclick = onClick;
+        // button.style.opacity = "0";
+
+        annotationLayer.appendChild(button);
     }
 
     _normalize(str: string): string {

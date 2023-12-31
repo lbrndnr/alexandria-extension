@@ -1,5 +1,5 @@
-import { iteratePattern, appendTextItem } from "./utils";
-import { PDFDocumentProxy } from "pdfjs-dist";
+import { iteratePattern, appendTextItem, Rect } from "./utils";
+import { PDFDocumentProxy, OPS } from "pdfjs-dist";
 import { TextItem } from "pdfjs-dist/types/src/display/api";
 import { SemanticScholar, Paper } from 'semanticscholarjs';
 
@@ -237,6 +237,33 @@ export class AcademicDocumentProxy {
 
             if (itemCits.length > 0) {
                 yield [items[i], itemCits];
+            }
+        }
+    }
+
+    async *iterateFigures(pageNumber: number): AsyncGenerator<[String, Rect], void, void> {
+        const page = await this.pdf.getPage(pageNumber);
+        const ops = await page.getOperatorList();
+        const figureOps = [OPS.paintImageXObject, 
+                           OPS.paintImageMaskXObject, 
+                           OPS.paintImageMaskXObjectGroup, 
+                           OPS.paintInlineImageXObject, 
+                           OPS.paintXObject];
+
+        let x = 0, y = 0;
+        for (let i = 0; i < ops.argsArray.length; i++) {
+            const op = ops.fnArray[i];
+            const args = ops.argsArray[i]; 
+
+            if (figureOps.includes(op)) {
+                const rect = new Rect(x, this.pageHeight - y + args[2], args[1], args[2]);
+                console.log(args, rect);
+
+                yield [args[0], rect];
+            }
+            else if (op == OPS.transform) {
+                x = args[4];
+                y = args[5];
             }
         }
     }

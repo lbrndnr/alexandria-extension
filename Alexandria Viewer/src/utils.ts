@@ -1,5 +1,19 @@
 import { TextItem } from "pdfjs-dist/types/src/display/api";
 
+export class Rect {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+
+    constructor(x: number, y: number, width: number, height: number) {
+        this.x = x;
+        this.y = y;
+        this.width = width;
+        this.height = height;
+    }
+}
+
 // iterates over all regex matches, yields the start and end index
 export function *iteratePattern(re: RegExp, text: string): Generator<[number, number], void, void> {
     let m;

@@ -1,5 +1,6 @@
 import * as pl from "pdfjs-dist";
 import { AcademicDocumentProxy } from "./doc";
+import { Rect } from "./utils";
 import * as fs from "fs";
 import * as path from "path";
 import * as https from "https";
@@ -10,9 +11,11 @@ interface PDFTestCase {
     localURL: string,
     path: string,
     citationsOnPage: [number, string[]][],
-    numReferences: number
+    numReferences: number,
+    numFiguresOnPage: [number, number][],
 }
 
+const cases = loadTestCases();
 function loadTestCases(): Array<PDFTestCase> {
     const dir = "res";
     const files = fs.readdirSync(dir)
@@ -38,7 +41,6 @@ async function loadDocument(url: string): Promise<AcademicDocumentProxy> {
 }
 
 beforeAll(() => {
-    const cases = loadTestCases();
     for (const c of cases) {
         if (!fs.existsSync(c.localURL)) {
             console.log("Downloading file for", c.localURL);
@@ -69,7 +71,6 @@ beforeAll(() => {
 }, 100000);
 
 describe("loads the title", () => {
-    const cases = loadTestCases();
     for (const c of cases) {
         it(c.localURL, async () => {
             const doc = await loadDocument(c.localURL);
@@ -80,46 +81,7 @@ describe("loads the title", () => {
     }
 });
 
-describe("loads all citations", () => {
-    const cases = loadTestCases().filter(c => c.citationsOnPage !== undefined);
-    for (const c of cases) {
-        it(c.localURL, async () => {
-            const doc = await loadDocument(c.localURL);
-            for (const [pageNumber, expectedCitations] of c.citationsOnPage) {
-                var citations = new Array<string>();
-                for await (const [item, ranges] of doc.iterateCitations(pageNumber)) {    
-                    expect(ranges.length).toBeGreaterThan(0);
-                    for (const [s, e] of ranges) {
-                        citations.push(item.str.substring(s, e));
-                    }
-                }
-            
-                expect(citations).toEqual(expectedCitations);
-            }
-        });
-    }
-});
-
-describe("loads all references", () => {
-    const cases = loadTestCases();
-    for (const c of cases) {
-        it(c.localURL, async () => {
-            const doc = await loadDocument(c.localURL);
-            const refs = await doc.loadReferences();
-            const expectedRefs = Array.from({length: c.numReferences}, (x, i) => String(i + 1));
-        
-            expect(refs).not.toBeNull();
-            expect(Array.from(refs.keys())).toEqual(expect.arrayContaining(expectedRefs));
-
-            for (const ref of refs.values()) {
-                expect(ref.length).toBeGreaterThan(0);
-            }
-        });
-    }
-});
-
 describe("finds the title", () => {
-    const cases = loadTestCases();
     for (const c of cases) {
         it(c.localURL, async () => {
             const doc = await loadDocument(c.localURL);
@@ -138,6 +100,58 @@ describe("finds the title", () => {
                 title = title.trim();
 
                 expect(title).toBe(c.title);
+            }
+        });
+    }
+});
+
+describe("loads all citations", () => {
+    for (const c of cases.filter(c => c.citationsOnPage !== undefined)) {
+        it(c.localURL, async () => {
+            const doc = await loadDocument(c.localURL);
+            for (const [pageNumber, expectedCitations] of c.citationsOnPage) {
+                var citations = new Array<string>();
+                for await (const [item, ranges] of doc.iterateCitations(pageNumber)) {    
+                    expect(ranges.length).toBeGreaterThan(0);
+                    for (const [s, e] of ranges) {
+                        citations.push(item.str.substring(s, e));
+                    }
+                }
+            
+                expect(citations).toEqual(expectedCitations);
+            }
+        });
+    }
+});
+
+describe("loads all references", () => {
+    for (const c of cases) {
+        it(c.localURL, async () => {
+            const doc = await loadDocument(c.localURL);
+            const refs = await doc.loadReferences();
+            const expectedRefs = Array.from({length: c.numReferences}, (x, i) => String(i + 1));
+        
+            expect(refs).not.toBeNull();
+            expect(Array.from(refs.keys())).toEqual(expect.arrayContaining(expectedRefs));
+
+            for (const ref of refs.values()) {
+                expect(ref.length).toBeGreaterThan(0);
+            }
+        });
+    }
+});
+
+describe("loads all figures", () => {
+    for (const c of cases.filter(c => c.numFiguresOnPage !== undefined)) {
+        it(c.localURL, async () => {
+            for (const [pageNum, numFigures] of c.numFiguresOnPage) {
+                const doc = await loadDocument(c.localURL);
+                let figs = new Array<[String, Rect]>();
+                for await (const fig of doc.iterateFigures(pageNum)) {
+                    figs.push(fig);
+                };
+
+                expect(figs.length).toBe(numFigures);
             }
         });
     }

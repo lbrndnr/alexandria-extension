@@ -4,5 +4,8 @@
     "citationsOnPage": [
         [2, ["31", "67", "46", "57"]]
     ],
-    "numReferences": 73
+    "numReferences": 73,
+    "numFiguresOnPage": [
+        [3, 1]
+    ]
 }
