@@ -4,7 +4,7 @@
   "description": "Alexandria PDF Viewer",
   "main": "index.ts",
   "scripts": {
-    "test": "jest --silent",
+    "test": "jest",
     "build": "webpack --mode=production --node-env=production && xcodebuild -project ../Alexandria.xcodeproj -scheme \"Alexandria Extension\"  build",
     "dev": "webpack --config webpack.dev.js",
     "watch": "webpack --watch",

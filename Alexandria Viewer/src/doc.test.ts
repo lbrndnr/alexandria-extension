@@ -13,6 +13,7 @@ interface PDFTestCase {
     citationsOnPage: [number, string[]][],
     numReferences: number,
     numFiguresOnPage: [number, number][],
+    references: { [k: string]: string }
 }
 
 const cases = loadTestCases();
@@ -82,6 +83,7 @@ describe("loads the title", () => {
 });
 
 describe("finds the title", () => {
+    const cases = loadTestCases();
     for (const c of cases) {
         it(c.localURL, async () => {
             const doc = await loadDocument(c.localURL);
@@ -100,6 +102,62 @@ describe("finds the title", () => {
                 title = title.trim();
 
                 expect(title).toBe(c.title);
+            }
+        });
+    }
+});
+
+describe("loads all citations", () => {
+    const cases = loadTestCases();
+    for (const c of cases) {
+        if (c.citationsOnPage === undefined) continue;
+
+        it(c.localURL, async () => {
+            const doc = await loadDocument(c.localURL);
+            for (const [pageNumber, expectedCitations] of c.citationsOnPage) {
+                var citations = new Array<string>();
+                for await (const [item, ranges] of doc.iterateCitations(pageNumber)) {    
+                    expect(ranges.length).toBeGreaterThan(0);
+                    for (const [s, e] of ranges) {
+                        citations.push(item.str.substring(s, e));
+                    }
+                }
+            
+                expect(citations).toEqual(expectedCitations);
+            }
+        });
+    }
+});
+
+describe("loads all references", () => {
+    const cases = loadTestCases();
+    for (const c of cases) {
+        it(c.localURL, async () => {
+            const doc = await loadDocument(c.localURL);
+            const refs = await doc.loadReferences();
+            const expectedRefs = Array.from({length: c.numReferences}, (x, i) => String(i + 1));
+        
+            expect(refs).not.toBeNull();
+            expect(Array.from(refs.keys())).toEqual(expect.arrayContaining(expectedRefs));
+
+            for (const ref of refs.values()) {
+                expect(ref.length).toBeGreaterThan(0);
+            }
+        });
+    }
+});
+
+describe("formats the references correctly", () => {
+    const cases = loadTestCases();
+    for (const c of cases) {
+        if (c.references === undefined) continue;
+
+        it(c.localURL, async () => {
+            const doc = await loadDocument(c.localURL);
+            const refs = await doc.loadReferences();
+
+            for (const key in c.references) {
+                expect(refs.get(key)).toBe(c.references[key]);
             }
         });
     }

@@ -85,10 +85,10 @@ export class AcademicDocumentProxy {
         let letterSizes = new Array<number>();
         for await (const item of this._iterateHorizontalTextItems(1, this.pdf.numPages)) {
             let s, e;
-            const textLength = text.length;
-            [text, [s, e]] = appendTextItem(text, item, true);
+            [text, [s, e]] = appendTextItem(text, item, false);
 
-            const sizes = Array(text.length-textLength).fill(0);
+            if (e-s <= 0) continue;
+            const sizes = Array(e-s).fill(0);
             letterSizes.concat(sizes);
             for (let i = s; i < e; i++) letterSizes[i] = item.height;
         }
