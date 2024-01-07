@@ -3,6 +3,7 @@ import { TextItem } from "pdfjs-dist/types/src/display/api";
 import * as pv from "pdfjs-dist/web/pdf_viewer";
 import { XMLParser } from "fast-xml-parser";
 import { AcademicDocumentProxy } from "./doc";
+import { iterateURLs } from "./utils";
 
 pl.GlobalWorkerOptions.workerSrc = require("pdfjs-dist/build/pdf.worker.entry");
 
@@ -64,7 +65,7 @@ class PDFViewer {
 
                 for await (const occurences of this.doc.iterateOccurences(event.pageNumber, title)) { 
                     for (const [item, s, e] of occurences) {
-                        this._addLinksToTextItem(event.pageNumber, item, [[googleScholarQueryURL(title), "Search on Google Scholar", s, e]]);
+                        this._addLinksToTextItem(event.pageNumber, item, [[searchQueryURL(title), "Search on Google Scholar", s, e]]);
                     }
                 }   
 
@@ -72,7 +73,7 @@ class PDFViewer {
                     for (const author of authors) {
                         for await (const occurences of this.doc.iterateOccurences(event.pageNumber, author)) { 
                             for (const [item, s, e] of occurences) {
-                                this._addLinksToTextItem(event.pageNumber, item, [[googleScholarQueryURL(author), "Search on Google Scholar", s, e]]);
+                                this._addLinksToTextItem(event.pageNumber, item, [[searchQueryURL(author), "Search on Google Scholar", s, e]]);
                             }
                         }   
                     }
@@ -88,7 +89,7 @@ class PDFViewer {
                         const ref = refs.get(keyword);
                         if (ref === undefined) continue;
     
-                        const url = googleScholarQueryURL(ref);
+                        const url = citationURL(ref);
                         links.push([url, ref, start, end]);
                     }
     
@@ -153,15 +154,20 @@ class PDFViewer {
         annotationLayer.appendChild(section);
     }
 
-    _normalize(str: string): string {
-        return str.replace(/\s+/g, " ");
-    }
-
 }
 
-function googleScholarQueryURL(text: string): string {
+function searchQueryURL(text: string): string {
     const query = encodeURIComponent(text);
     return `https://scholar.google.com/scholar?q=${query}`;
+}
+
+function citationURL(cit: string): string {
+    console.log(cit);
+    for (const [s, e] of iterateURLs(cit)) {
+        return cit.slice(s, e);
+    }
+
+    return searchQueryURL(cit);
 }
 
 async function getAuthors(title: string): Promise<string[] | null> {
@@ -198,7 +204,7 @@ function addEventListeners() {
     document.addEventListener("keypress", (event) => {
         switch (event.key) {
             case "s": {
-                const url = googleScholarQueryURL(top.document.title);
+                const url = searchQueryURL(top.document.title);
                 window.open(url, "_blank");
                 break;
             }
