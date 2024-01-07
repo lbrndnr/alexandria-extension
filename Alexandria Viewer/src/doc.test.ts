@@ -10,7 +10,8 @@ interface PDFTestCase {
     localURL: string,
     path: string,
     citationsOnPage: [number, string[]][],
-    numReferences: number
+    numReferences: number,
+    references: { [k: string]: string }
 }
 
 function loadTestCases(): Array<PDFTestCase> {
@@ -80,9 +81,36 @@ describe("loads the title", () => {
     }
 });
 
-describe("loads all citations", () => {
-    const cases = loadTestCases().filter(c => c.citationsOnPage !== undefined);
+describe("finds the title", () => {
+    const cases = loadTestCases();
     for (const c of cases) {
+        it(c.localURL, async () => {
+            const doc = await loadDocument(c.localURL);
+
+            for await (const occurrences of doc.iterateOccurences(1, c.title)) {    
+                var title = "";
+                for (const [item, s, e] of occurrences) {
+                    expect(s).toBeGreaterThanOrEqual(0);
+                    expect(s).toBeLessThan(e);
+    
+                    title += item.str.substring(s, e);
+                    if (item.hasEOL) {
+                        title += " ";
+                    }
+                }
+                title = title.trim();
+
+                expect(title).toBe(c.title);
+            }
+        });
+    }
+});
+
+describe("loads all citations", () => {
+    const cases = loadTestCases();
+    for (const c of cases) {
+        if (c.citationsOnPage === undefined) continue;
+
         it(c.localURL, async () => {
             const doc = await loadDocument(c.localURL);
             for (const [pageNumber, expectedCitations] of c.citationsOnPage) {
@@ -118,26 +146,17 @@ describe("loads all references", () => {
     }
 });
 
-describe("finds the title", () => {
+describe("formats the references correctly", () => {
     const cases = loadTestCases();
     for (const c of cases) {
+        if (c.references === undefined) continue;
+
         it(c.localURL, async () => {
             const doc = await loadDocument(c.localURL);
+            const refs = await doc.loadReferences();
 
-            for await (const occurrences of doc.iterateOccurences(1, c.title)) {    
-                var title = "";
-                for (const [item, s, e] of occurrences) {
-                    expect(s).toBeGreaterThanOrEqual(0);
-                    expect(s).toBeLessThan(e);
-    
-                    title += item.str.substring(s, e);
-                    if (item.hasEOL) {
-                        title += " ";
-                    }
-                }
-                title = title.trim();
-
-                expect(title).toBe(c.title);
+            for (const key in c.references) {
+                expect(refs.get(key)).toBe(c.references[key]);
             }
         });
     }
