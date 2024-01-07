@@ -1,9 +1,9 @@
 import { TextItem } from "pdfjs-dist/types/src/display/api";
 
 // helper function matching all urls in text
-export function *iterateURLs(text: string): Generator<[number, number], void, void> {
-    const re = /[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/ig;
-    iteratePattern(re, text);
+export function iterateURLs(text: string): Generator<[number, number], void, void> {
+    const re = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/ig;
+    return iteratePattern(re, text);
 }
 
 // iterates over all regex matches, yields the start and end index

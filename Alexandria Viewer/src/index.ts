@@ -233,7 +233,7 @@ function setScaleValue(value: string) {
     VIEWER.viewer.currentScaleValue = value;
 }
 
-export function prepareBody(): HTMLDivElement {
+function prepareBody(): HTMLDivElement {
     const viewer = document.createElement("div");
     viewer.setAttribute("class", "pdfViewer");
     
