@@ -162,7 +162,6 @@ function searchQueryURL(text: string): string {
 }
 
 function citationURL(cit: string): string {
-    console.log(cit);
     for (const [s, e] of iterateURLs(cit)) {
         return cit.slice(s, e);
     }
