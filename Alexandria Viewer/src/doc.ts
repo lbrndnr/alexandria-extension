@@ -1,7 +1,10 @@
 import { iteratePattern, appendTextItem, Rect } from "./utils";
 import { PDFDocumentProxy, OPS } from "pdfjs-dist";
-import { TextItem } from "pdfjs-dist/types/src/display/api";
+import * as gl from "gl-matrix";
+import { TextItem, PDFOperatorList } from "pdfjs-dist/types/src/display/api";
 import { SemanticScholar, Paper } from 'semanticscholarjs';
+
+gl.glMatrix.setMatrixArrayType(Array)
 
 const sch = new SemanticScholar();
 
@@ -241,31 +244,108 @@ export class AcademicDocumentProxy {
         }
     }
 
-    async *iterateFigures(pageNumber: number): AsyncGenerator<[String, Rect], void, void> {
+    async *iterateFigures(pageNumber: number): AsyncGenerator<Rect, void, void> {
         const page = await this.pdf.getPage(pageNumber);
-        const ops = await page.getOperatorList();
-        const figureOps = [OPS.paintImageXObject, 
-                           OPS.paintImageMaskXObject, 
-                           OPS.paintImageMaskXObjectGroup, 
-                           OPS.paintInlineImageXObject, 
-                           OPS.paintXObject];
+        const list = await page.getOperatorList();
+        const [fops, fargs] = flattenOperatorList(list);
 
-        let x = 0, y = 0;
-        for (let i = 0; i < ops.argsArray.length; i++) {
-            const op = ops.fnArray[i];
-            const args = ops.argsArray[i]; 
+        const pageWidth = page.view[2] - page.view[0];
+        const pageHeight = page.view[3] - page.view[1];
 
-            if (figureOps.includes(op)) {
-                const rect = new Rect(x, this.pageHeight - y + args[2], args[1], args[2]);
-                console.log(args, rect);
+        // processes an operator
+        // returns a list of points and a flag indicating whether the op appends to the current path
+        function _process(op: number, args: number[]): [number, number][] {
+            function _xy(i: number): [number, number] { return [args[i], args[i+1]]; }
 
-                yield [args[0], rect];
-            }
-            else if (op == OPS.transform) {
-                x = args[4];
-                y = args[5];
+            switch (op) {
+                case OPS.lineTo: return [_xy(0)];
+                case OPS.curveTo: return [_xy(4)];
+                case OPS.curveTo2: return [_xy(2)];
+                case OPS.curveTo3: return [_xy(2)];
+                case OPS.rectangle: {
+                    const r = new Rect(args[0], args[0] + args[2], args[1], args[1] + args[3]);
+                    return r.coords;
+                }
+                default: return [];
             }
         }
+
+        let state = new Array();
+        let rect = Rect.undefined();
+        let ctm = gl.mat2d.create();
+        let isVisible = false;
+
+        function _transformedPoint(x: number, y: number): [number, number] {
+            const pt = gl.vec2.fromValues(x, y);
+            gl.vec2.transformMat2d(pt, pt, ctm);
+
+            // if (pt[0] > pageWidth || pt[1] > pageHeight) {
+            //     throw new Error(`out of bounds ${pt} from ${x}/${y}`);
+            // }
+            return [pt[0], pt[1]];
+        }
+        
+        for (let i = 0; i < fops.length; i++) {
+            const op = fops[i];
+            const args = fargs[i]; 
+
+            if (op == OPS.closePath || op == OPS.endPath) {
+                if (!rect.isUndefined && isVisible) yield rect;
+                rect = Rect.undefined() 
+                isVisible = false;
+            }
+            else if (op == OPS.stroke || op == OPS.fill || op == OPS.eoFill || op == OPS.eoFillStroke) {
+                isVisible = true;
+            }
+            else if (op == OPS.closeFillStroke || op == OPS.closeStroke || op == OPS.closeEOFillStroke) {
+                isVisible = true;
+                if (!rect.isUndefined && isVisible) yield rect;
+
+                rect = Rect.undefined();
+                rect.enclose(_transformedPoint(args[0], args[1]));
+                isVisible = false;
+            }
+            else if (op == OPS.moveTo) {
+                if (!rect.isUndefined && isVisible) yield rect;
+
+                rect = Rect.undefined() 
+                rect.enclose(_transformedPoint(args[0], args[1]));
+                isVisible = false;
+            }
+            else if (op == OPS.save) {
+                // console.log("save");
+
+                state.push(gl.mat2d.clone(ctm));
+            }
+            else if (op == OPS.restore) {
+                // console.log("restore", ctm, "->", state[state.length-1]);
+                ctm = state.pop() ?? gl.mat2d.create();
+            }
+            else if (op == OPS.transform) {
+                const transform = gl.mat2d.fromValues(args[0], args[1], args[2], args[3], args[4], args[5]);
+                gl.mat2d.mul(ctm, transform, ctm);
+                // console.log(args, ctm);
+            }
+            else if (op == OPS.constructPath) {
+                throw new Error("constructPath not valid in flattened operator list");
+            }
+            // else if (op == OPS.beginGroup) {
+            //     console.log("beginGroup", args);
+            // }
+            // else if (op == OPS.setGState) {
+            //     console.log("setGState", args);
+            // }
+            // else if (op == OPS.beginInlineImage) {
+            //     console.log("beginInlineImage", args);
+            // }
+            else {
+                const coords = _process(op, args);
+                for (const [x, y] of coords) rect.enclose(_transformedPoint(x, y));
+            }
+        }
+
+        // yield the last rect that wasn't explicitely closed
+        if (!rect.isUndefined && isVisible) yield rect;
     }
 
     async resolveFontName(pageNumber: number, fontName: string): Promise<string> {
@@ -281,4 +361,41 @@ export class AcademicDocumentProxy {
         return resolvedFontName;
     }
 
+}
+
+function flattenOperatorList(list: PDFOperatorList): [number[], any[]] {
+    const numArgs = new Map([
+        [OPS.moveTo, 2],
+        [OPS.lineTo, 2],
+        [OPS.curveTo, 6],
+        [OPS.curveTo2, 4],
+        [OPS.curveTo3, 4],
+        [OPS.closePath, 0],
+        [OPS.rectangle, 4]
+    ]);
+
+    let flatOps = new Array();
+    let flatArgs = new Array();
+    for (let i = 0; i < list.fnArray.length; i++) {
+        const op = list.fnArray[i];
+        const args = list.argsArray[i];
+
+        if (op == OPS.constructPath) {
+            const sops = args[0];
+            const sargs = args[1];
+            for (let j = 0, k =0; j < sops.length && k < sargs.length; j++) {
+                const sop = sops[j];
+                const count = numArgs.get(sop);
+                flatOps.push(sop);
+                flatArgs.push(sargs.slice(k, k+count));
+                k += count;
+            }
+        }
+        else {
+            flatOps.push(op);
+            flatArgs.push(args);
+        }
+    }
+
+    return [flatOps, flatArgs];
 }

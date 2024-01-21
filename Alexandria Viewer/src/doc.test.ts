@@ -204,10 +204,12 @@ describe("loads all figures", () => {
         it(c.localURL, async () => {
             for (const [pageNum, numFigures] of c.numFiguresOnPage) {
                 const doc = await loadDocument(c.localURL);
-                let figs = new Array<[String, Rect]>();
-                for await (const fig of doc.iterateFigures(pageNum)) {
-                    figs.push(fig);
-                };
+                let figs = new Array<Rect>();
+                for await (const rect of doc.iterateFigures(pageNum)) {
+                    figs.push(rect);
+                }
+
+                console.log(figs);
 
                 expect(figs.length).toBe(numFigures);
             }

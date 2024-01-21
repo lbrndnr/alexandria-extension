@@ -1,17 +1,48 @@
 import { TextItem } from "pdfjs-dist/types/src/display/api";
 
 export class Rect {
-    x: number;
-    y: number;
-    width: number;
-    height: number;
+    x1: number;
+    x2: number;
 
-    constructor(x: number, y: number, width: number, height: number) {
-        this.x = x;
-        this.y = y;
-        this.width = width;
-        this.height = height;
+    y1: number;
+    y2: number;
+
+    get width(): number { return this.x2 - this.x1; }
+    get height(): number { return this.y2 - this.y1; }
+    get coords(): [number, number][] {
+        return [
+            [this.x1, this.y1],
+            [this.x1, this.y2],
+            [this.x2, this.y1],
+            [this.x2, this.y2]
+        ];
     }
+    get isUndefined(): boolean {
+        return (this.x1 === undefined || this.x2 === undefined || this.y1 === undefined || this.y2 === undefined);
+    }
+
+    constructor(x1: number, x2: number, y1: number, y2: number) {
+        this.x1 = x1;
+        this.x2 = x2;
+        this.y1 = y1;
+        this.y2 = y2;
+    }
+
+    static undefined(): Rect {
+        return new Rect(undefined, undefined, undefined, undefined);
+    }
+
+    enclose(coords: [number, number]) {
+        this.encloseCoordinates(coords[0], coords[1]);
+    }
+
+    encloseCoordinates(x: number, y: number) {
+        this.x1 = (this.x1 === undefined) ? x : Math.min(this.x1, x);
+        this.x2 = (this.x2 === undefined) ? x : Math.max(this.x2, x);
+        this.y1 = (this.y1 === undefined) ? y : Math.min(this.y1, y);
+        this.y2 = (this.y2 === undefined) ? y : Math.max(this.y2, y);
+    }
+
 }
 
 // helper function matching all urls in text

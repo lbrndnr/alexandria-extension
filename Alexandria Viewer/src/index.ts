@@ -97,10 +97,10 @@ class PDFViewer {
                 }
             }
 
-            for await (const [name, rect] of this.doc.iterateFigures(event.pageNumber)) {
-                console.log(event.pageNumber, name, rect);
+            for await (const rect of this.doc.iterateFigures(event.pageNumber)) {
+                console.log(rect);
                 this._addButtonToPage(event.pageNumber, rect, () => {
-                    console.log(name);
+                    console.log(rect);
                 });
             }
         });
@@ -168,15 +168,18 @@ class PDFViewer {
         const annotationLayer = als[0] as HTMLElement;
         annotationLayer.hidden = false;
 
+        const top = this.doc.pageHeight - rect.y2;
         const button = document.createElement("button");
+        button.style.background = "green";
         button.style.zIndex = "100";
-        button.style.left = `calc(var(--scale-factor)*${rect.x}px)`;
-        button.style.top = `calc(var(--scale-factor)*${rect.y}px)`;
+        button.style.position = "absolute";
+        button.style.left = `calc(var(--scale-factor)*${rect.x1}px)`;
+        button.style.top = `calc(var(--scale-factor)*${top}px)`;
         button.style.height = `calc(var(--scale-factor)*${rect.height}px)`;
         button.style.width = `calc(var(--scale-factor)*${rect.width}px)`;
         button.setAttribute("class", "figureAnnotation");
         button.onclick = onClick;
-        // button.style.opacity = "0";
+        // button.style.opacity = "0.2";
 
         annotationLayer.appendChild(button);
     }
