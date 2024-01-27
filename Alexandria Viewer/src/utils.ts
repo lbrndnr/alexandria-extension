@@ -32,8 +32,10 @@ export class Rect {
         return new Rect(undefined, undefined, undefined, undefined);
     }
 
-    enclose(coords: [number, number]) {
-        this.encloseCoordinates(coords[0], coords[1]);
+    encloseRect(rect: Rect) {
+        for (const pt of rect.coords) {
+            this.encloseCoordinates(pt[0], pt[1]);
+        }
     }
 
     encloseCoordinates(x: number, y: number) {
@@ -41,6 +43,11 @@ export class Rect {
         this.x2 = (this.x2 === undefined) ? x : Math.max(this.x2, x);
         this.y1 = (this.y1 === undefined) ? y : Math.min(this.y1, y);
         this.y2 = (this.y2 === undefined) ? y : Math.max(this.y2, y);
+    }
+
+    overlapsWith(rect: Rect): boolean {
+        const contains = (pt: [number, number]) => (this.x1 <= pt[0] && pt[0] <= this.x2 && this.y1 <= pt[1] && pt[1] <= this.y2);;
+        return rect.coords.some(contains);
     }
 
 }

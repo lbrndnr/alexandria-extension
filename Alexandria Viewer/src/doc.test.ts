@@ -205,7 +205,7 @@ describe("loads all figures", () => {
             for (const [pageNum, numFigures] of c.numFiguresOnPage) {
                 const doc = await loadDocument(c.localURL);
                 let figs = new Array<Rect>();
-                for await (const rect of doc.iterateFigures(pageNum)) {
+                for await (const rect of await doc.loadFigures(pageNum)) {
                     figs.push(rect);
                 }
 
