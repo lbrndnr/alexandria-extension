@@ -46,8 +46,14 @@ export class Rect {
     }
 
     overlapsWith(rect: Rect): boolean {
-        const contains = (pt: [number, number]) => (this.x1 <= pt[0] && pt[0] <= this.x2 && this.y1 <= pt[1] && pt[1] <= this.y2);;
-        return rect.coords.some(contains);
+        return this.x1 < rect.x2 && this.x2 > rect.x1 && this.y1 < rect.y2 && this.y2 > rect.y1;
+    }
+
+    inset(x: number, y: number) {
+        this.x1 += x;
+        this.x2 -= x;
+        this.y1 += y;
+        this.y2 -= y;
     }
 
 }

@@ -97,8 +97,8 @@ class PDFViewer {
                 }
             }
 
-            for await (const rect of this.doc.iterateFigures(event.pageNumber)) {
-                console.log(rect);
+            for await (const rect of await this.doc.loadFigures(event.pageNumber)) {
+                console.log("NEW RECT:", rect);
                 this._addButtonToPage(event.pageNumber, rect, () => {
                     console.log(rect);
                 });
@@ -179,7 +179,7 @@ class PDFViewer {
         button.style.width = `calc(var(--scale-factor)*${rect.width}px)`;
         button.setAttribute("class", "figureAnnotation");
         button.onclick = onClick;
-        // button.style.opacity = "0.2";
+        button.style.opacity = "0.2";
 
         annotationLayer.appendChild(button);
     }

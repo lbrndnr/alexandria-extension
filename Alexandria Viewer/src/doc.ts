@@ -2,7 +2,7 @@ import { iteratePattern, appendTextItem, Rect } from "./utils";
 import { PDFDocumentProxy, OPS } from "pdfjs-dist";
 import { TextItem, PDFOperatorList } from "pdfjs-dist/types/src/display/api";
 import { SemanticScholar, Paper } from 'semanticscholarjs';
-import { getFigureRects } from "./ctx";
+import { getFigureRects, combineOverlappingRects } from "./ctx";
 
 const sch = new SemanticScholar();
 
@@ -245,7 +245,13 @@ export class AcademicDocumentProxy {
     async loadFigures(pageNumber: number): Promise<Rect[]> {
         const page = await this.pdf.getPage(pageNumber);
         const list = await page.getOperatorList();
-        return getFigureRects(list);
+        const rects = getFigureRects(list)
+
+        rects.forEach(r => r.inset(-50, -50));
+        combineOverlappingRects(rects);
+        rects.forEach(r => r.inset(50, 50));
+
+        return rects.filter(r => r.width > 50 && r.height > 50);
     }
 
     async resolveFontName(pageNumber: number, fontName: string): Promise<string> {

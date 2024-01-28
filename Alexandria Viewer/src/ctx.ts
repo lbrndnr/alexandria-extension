@@ -46,7 +46,7 @@ function _transformedRectFromValues(xs: number[], ys: number[], ctm: gl.mat2d): 
     return new Rect(x1, x2, y1, y2);
 }
 
-function _flattenOverlappingRects(rects: Rect[]) {
+export function combineOverlappingRects(rects: Rect[]) {
     for (let i = 0; i < rects.length; i++) {
         for (let j = i+1; j < rects.length; j++) {
             if (rects[i].overlapsWith(rects[j])) {
@@ -56,7 +56,8 @@ function _flattenOverlappingRects(rects: Rect[]) {
                 rects.splice(j, 1);
 
                 // make sure that no new overlapping rects were created
-                return _flattenOverlappingRects(rects);
+                combineOverlappingRects(rects);
+                return;
             }
         }
     }
@@ -75,7 +76,7 @@ export function getFigureRects(ops: PDFOperatorList): Rect[] {
             const r = _transformedRectFromValues(xs, ys, ctm);
             if (r.height > 0 && r.width > 0) {
                 rects.push(r);
-                _flattenOverlappingRects(rects);
+                combineOverlappingRects(rects);
             }
         }
         

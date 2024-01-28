@@ -206,10 +206,11 @@ describe("loads all figures", () => {
                 const doc = await loadDocument(c.localURL);
                 let figs = new Array<Rect>();
                 for await (const rect of await doc.loadFigures(pageNum)) {
+                    for (const fig of figs) {
+                        expect(fig.overlapsWith(rect)).toBe(false);
+                    }
                     figs.push(rect);
                 }
-
-                console.log(figs);
 
                 expect(figs.length).toBe(numFigures);
             }
