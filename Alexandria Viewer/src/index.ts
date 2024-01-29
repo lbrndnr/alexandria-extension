@@ -98,9 +98,8 @@ class PDFViewer {
             }
 
             for await (const rect of await this.doc.loadFigures(event.pageNumber)) {
-                console.log("NEW RECT:", rect);
                 this._addButtonToPage(event.pageNumber, rect, () => {
-                    console.log(rect);
+                    console.log("touched", rect);
                 });
             }
         });
@@ -149,13 +148,11 @@ class PDFViewer {
 
         const top = this.doc.pageHeight - (item.transform[5] + item.height);
         const section = document.createElement("section");
-        section.style.zIndex = "100";
         section.style.left = `calc(var(--scale-factor)*${item.transform[4]}px)`;
         section.style.top = `calc(var(--scale-factor)*${top}px)`;
         section.style.height = `calc(var(--scale-factor)*${item.height}px)`;
         section.style.width = `calc(var(--scale-factor)*${item.width}px)`;
         section.setAttribute("class", "linkAnnotation");
-        section.style.opacity = "0";
         section.appendChild(span);
 
         annotationLayer.appendChild(section);
@@ -170,16 +167,12 @@ class PDFViewer {
 
         const top = this.doc.pageHeight - rect.y2;
         const button = document.createElement("button");
-        button.style.background = "green";
-        button.style.zIndex = "100";
-        button.style.position = "absolute";
         button.style.left = `calc(var(--scale-factor)*${rect.x1}px)`;
         button.style.top = `calc(var(--scale-factor)*${top}px)`;
         button.style.height = `calc(var(--scale-factor)*${rect.height}px)`;
         button.style.width = `calc(var(--scale-factor)*${rect.width}px)`;
         button.setAttribute("class", "figureAnnotation");
         button.onclick = onClick;
-        button.style.opacity = "0.2";
 
         annotationLayer.appendChild(button);
     }

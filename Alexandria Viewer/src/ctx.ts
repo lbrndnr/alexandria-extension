@@ -5,20 +5,21 @@ import * as gl from "gl-matrix";
 
 gl.glMatrix.setMatrixArrayType(Array);
 
-// interface Indexable {
-//     [key: string]: any;
-// }
+interface Indexable {
+    [key: string]: any;
+}
 
-// const op2str = new Array(1000);
-// for (const op in OPS) {
-//     const idx = (OPS as Indexable)[op];
-//     op2str[idx] = op;
-// }
+const op2str = new Array(1000);
+for (const op in OPS) {
+    const idx = (OPS as Indexable)[op];
+    op2str[idx] = op;
+}
 
 function _pointFromArgs(op: number, args: number[]): [number, number]|null {
     function _xy(i: number): [number, number] { return [args[i], args[i+1]]; }
 
     switch (op) {
+        case OPS.moveTo: return _xy(0);
         case OPS.lineTo: return _xy(0);
         case OPS.curveTo: return _xy(4);
         case OPS.curveTo2: return _xy(2);
@@ -81,8 +82,21 @@ export function getFigureRects(ops: PDFOperatorList): Rect[] {
         isVisible = false;
     }
 
+    function _appendPointFromArgs(op: number, args: number[]) {
+        const pt = _pointFromArgs(op, args);
+        if (pt !== null) {
+            let [x, y] = pt;
+            [x, y] = _transformPoint(x, y, ctm);
+            xs.push(x), ys.push(y);
+        }
+    }
+
     for (const [op, args] of _iterateOperations(ops)) {
-        if (op == OPS.closePath || op == OPS.endPath) {
+        if (op == OPS.moveTo) {
+            _appendCurrentRect();
+            _appendPointFromArgs(op, args);
+        }
+        else if (op == OPS.closePath || op == OPS.endPath) {
             _appendCurrentRect();
         }
         else if (op == OPS.stroke || op == OPS.fill || op == OPS.eoFill || op == OPS.eoFillStroke) {
@@ -126,12 +140,7 @@ export function getFigureRects(ops: PDFOperatorList): Rect[] {
             _appendCurrentRect();
         }
         else {
-            const pt = _pointFromArgs(op, args);
-            if (pt !== null) {
-                let [x, y] = pt;
-                [x, y] = _transformPoint(x, y, ctm);
-                xs.push(x), ys.push(y);
-            }
+            _appendPointFromArgs(op, args);
         }
     }
 
