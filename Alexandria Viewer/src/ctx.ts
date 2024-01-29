@@ -11,11 +11,11 @@ gl.glMatrix.setMatrixArrayType(Array);
 
 // const op2str = new Array(1000);
 // for (const op in OPS) {
-//     const idx = (OPS as IIndexable)[op];
+//     const idx = (OPS as Indexable)[op];
 //     op2str[idx] = op;
 // }
 
-function _point(op: number, args: number[]): [number, number]|null {
+function _pointFromArgs(op: number, args: number[]): [number, number]|null {
     function _xy(i: number): [number, number] { return [args[i], args[i+1]]; }
 
     switch (op) {
@@ -34,14 +34,11 @@ function _transformPoint(x: number, y: number, ctm: gl.mat2d): [number, number] 
     return [pt[0], pt[1]];
 }
 
-function _transformedRectFromValues(xs: number[], ys: number[], ctm: gl.mat2d): Rect {
-    let x1 = Math.min.apply(null, xs);
-    let x2 = Math.max.apply(null, xs);
-    let y1 = Math.min.apply(null, ys);
-    let y2 = Math.max.apply(null, ys);
-
-    [x1, y1] = _transformPoint(x1, y1, ctm);
-    [x2, y2] = _transformPoint(x2, y2, ctm);
+function _rectFromValues(xs: number[], ys: number[]): Rect {
+    const x1 = Math.min.apply(null, xs);
+    const x2 = Math.max.apply(null, xs);
+    const y1 = Math.min.apply(null, ys);
+    const y2 = Math.max.apply(null, ys);
 
     return new Rect(x1, x2, y1, y2);
 }
@@ -73,7 +70,7 @@ export function getFigureRects(ops: PDFOperatorList): Rect[] {
 
     function _appendCurrentRect() {
         if (xs.length > 0 && isVisible) {
-            const r = _transformedRectFromValues(xs, ys, ctm);
+            const r = _rectFromValues(xs, ys);
             if (r.height > 0 && r.width > 0) {
                 rects.push(r);
                 combineOverlappingRects(rects);
@@ -109,11 +106,12 @@ export function getFigureRects(ops: PDFOperatorList): Rect[] {
             throw new Error("constructPath not valid in flattened operator list");
         }
         else if (op == OPS.paintImageXObject) {
-            const x1 = xs[xs.length-1];
-            const y1 = ys[ys.length-1];
+            const x1 = (xs.length > 0) ? xs[xs.length-1] : 0;
+            const y1 = (ys.length > 0) ? ys[ys.length-1] : 0;
 
             const r = new Rect(x1, y1, x1+args[0], y1+args[1]);
-            for (const [x, y] of r.coords) { 
+            for (let [x, y] of r.coords) { 
+                [x, y] = _transformPoint(x, y, ctm);
                 xs.push(x), ys.push(y);
             }
         }
@@ -121,15 +119,18 @@ export function getFigureRects(ops: PDFOperatorList): Rect[] {
             _appendCurrentRect();
             
             let r = new Rect(args[0], args[0] + args[2], args[1], args[1] + args[3]);             
-            for (const [x, y] of r.coords) {
+            for (let [x, y] of r.coords) {
+                [x, y] = _transformPoint(x, y, ctm);
                 xs.push(x), ys.push(y);
             }
             _appendCurrentRect();
         }
         else {
-            const pt = _point(op, args);
+            const pt = _pointFromArgs(op, args);
             if (pt !== null) {
-                xs.push(pt[0]), ys.push(pt[1]);
+                let [x, y] = pt;
+                [x, y] = _transformPoint(x, y, ctm);
+                xs.push(x), ys.push(y);
             }
         }
     }

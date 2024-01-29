@@ -245,7 +245,7 @@ export class AcademicDocumentProxy {
     async loadFigures(pageNumber: number): Promise<Rect[]> {
         const page = await this.pdf.getPage(pageNumber);
         const list = await page.getOperatorList();
-        const rects = getFigureRects(list)
+        const rects = getFigureRects(list);
 
         rects.forEach(r => r.inset(-50, -50));
         combineOverlappingRects(rects);
