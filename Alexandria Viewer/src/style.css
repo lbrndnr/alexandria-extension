@@ -12,6 +12,19 @@
     background-color: transparent;
 }
 
+#alexandria-pdf-container .linkAnnotation {
+    opacity: 0;
+    z-index: 100;
+}
+
+#alexandria-pdf-container .figureAnnotation {
+    opacity: 0;
+    z-index: 100;
+    position: absolute;
+    pointer-events: all;
+    cursor: pointer;
+}
+
 .inverted-color .page {
     filter:invert(1);
 }
