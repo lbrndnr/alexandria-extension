@@ -5,15 +5,15 @@ import * as gl from "gl-matrix";
 
 gl.glMatrix.setMatrixArrayType(Array);
 
-interface Indexable {
-    [key: string]: any;
-}
+// interface Indexable {
+//     [key: string]: any;
+// }
 
-const op2str = new Array(1000);
-for (const op in OPS) {
-    const idx = (OPS as Indexable)[op];
-    op2str[idx] = op;
-}
+// const op2str = new Array(1000);
+// for (const op in OPS) {
+//     const idx = (OPS as Indexable)[op];
+//     op2str[idx] = op;
+// }
 
 function _pointFromArgs(op: number, args: number[]): [number, number]|null {
     function _xy(i: number): [number, number] { return [args[i], args[i+1]]; }

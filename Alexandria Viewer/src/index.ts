@@ -20,6 +20,7 @@ class PDFViewer {
     doc: AcademicDocumentProxy
     container: HTMLDivElement;
     viewer: pv.PDFViewer;
+    floatingFigure: HTMLCanvasElement;
 
     constructor(url: String, container: HTMLDivElement) {
         this.url = url;
@@ -99,7 +100,7 @@ class PDFViewer {
 
             for await (const rect of await this.doc.loadFigures(event.pageNumber)) {
                 this._addButtonToPage(event.pageNumber, rect, () => {
-                    console.log("touched", rect);
+                    this._addFloatingFigure(event.pageNumber, rect);
                 });
             }
         });
@@ -177,6 +178,38 @@ class PDFViewer {
         annotationLayer.appendChild(button);
     }
 
+    private async _addFloatingFigure(pageNumber: number, rect: Rect) {
+        if (!this.floatingFigure) {
+            this.floatingFigure = document.createElement("canvas");
+            this.floatingFigure.setAttribute("class", "floatingFigure");
+            this.container.appendChild(this.floatingFigure);
+
+            // const canvas = document.createElement("canvas");
+            // this.floatingFigure.appendChild(canvas);
+        }
+
+        this.floatingFigure.style.height = `calc(var(--scale-factor)*${rect.height}px)`;
+        this.floatingFigure.style.width = `calc(var(--scale-factor)*${rect.width}px)`;
+
+        const page = await this.doc.pdf.getPage(pageNumber);
+
+        // const canvas = this.floatingFigure.querySelectorAll("canvas")[0] as HTMLCanvasElement;
+        const ctx = this.floatingFigure.getContext("2d");
+        // const scale = this.doc.pageWidth/rect.width;
+        const scale = this.doc.pageWidth/rect.width/2.0;
+        console.log(window.screen.availWidth, window.screen.width, this.doc.pageWidth/rect.width, scale, rect, this.doc.pageWidth, page.getViewport({scale: 1.0}).width);
+        const viewport = page.getViewport({
+            scale: scale,
+            offsetX: -rect.x1*scale,
+            offsetY: -(this.doc.pageHeight - rect.y2)*scale
+        });
+
+        page.render({
+            canvasContext: ctx,
+            viewport: viewport
+        });
+    }
+
 }
 
 function searchQueryURL(text: string): string {
@@ -243,6 +276,11 @@ function addEventListeners() {
             case "8": setScaleValue("page-fit"); break;
             case "9": setScaleValue("page-width"); break;
             case "0": setScaleValue("auto"); break;
+            case "Escape": {
+                VIEWER.floatingFigure.remove();
+                VIEWER.floatingFigure = null;
+                break;
+            }
         }
     });
 

@@ -12,7 +12,8 @@ export class AcademicDocumentProxy {
     private _meta: Paper;
     private _title: string;
     private _references: Map<string, string>;
-    pageHeight: number
+    pageHeight: number;
+    pageWidth: number;
     private _fontNames = new Map<string, string>();
 
     constructor(pdf: PDFDocumentProxy) {
@@ -141,6 +142,7 @@ export class AcademicDocumentProxy {
             const page = await this.pdf.getPage(i);
             const textContent = await page.getTextContent();
             if (this.pageHeight === undefined) this.pageHeight = page.view[3] - page.view[1];
+            if (this.pageWidth === undefined) this.pageWidth = page.view[2] - page.view[0];
         
             for (const elem of textContent.items) {
                 const item = elem as TextItem;

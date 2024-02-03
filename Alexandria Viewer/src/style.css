@@ -25,6 +25,25 @@
     cursor: pointer;
 }
 
+#alexandria-pdf-container .floatingFigure {
+    position: fixed;
+    left: 20px;
+    top: 20px;
+    z-index: 2;
+    max-width: 50%;
+    max-height: 50%;
+    border-radius: 10px;
+    filter: drop-shadow(black 0 0 10px);
+    resize: both;
+    overflow: scroll;
+    background-color: green;
+}
+
+#alexandria-pdf-container .floatingFigure canvas {
+    width: 100%;
+    height: 100%;
+}
+
 .inverted-color .page {
     filter:invert(1);
 }
