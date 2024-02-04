@@ -1,4 +1,4 @@
-import { iteratePattern, appendTextItem, Rect } from "./utils";
+import { iteratePattern, postprocessCitation, appendTextItem, Rect } from "./utils";
 import { PDFDocumentProxy, OPS } from "pdfjs-dist";
 import { TextItem, PDFOperatorList } from "pdfjs-dist/types/src/display/api";
 import { SemanticScholar, Paper } from 'semanticscholarjs';
@@ -65,11 +65,11 @@ export class AcademicDocumentProxy {
                 title = line;
             }
             else if (item.height == maxHeight && item.fontName == titleFont) {
-                title += " " + line;
+                title += line;
             }
         }
 
-        return [title, maxHeight];
+        return [title.trim(), maxHeight];
     }
 
     async loadReferences(): Promise<Map<string, string>> {
@@ -87,7 +87,7 @@ export class AcademicDocumentProxy {
         let letterSizes = new Array<number>();
         for await (const item of this._iterateHorizontalTextItems(1, this.pdf.numPages)) {
             let s, e;
-            [text, [s, e]] = appendTextItem(text, item, false);
+            [text, [s, e]] = appendTextItem(text, item, true);
 
             if (e-s <= 0) continue;
             const sizes = Array(e-s).fill(0);
@@ -116,7 +116,7 @@ export class AcademicDocumentProxy {
         
         for (const [s, e] of iteratePattern(re, text)) {
             if (keyword !== null) {
-                const cit = text.slice(j, s).trim();
+                const cit = text.slice(j, s);
                 this._references.set(keyword, cit);
             }
 
@@ -128,7 +128,12 @@ export class AcademicDocumentProxy {
         // insert last references if we already have a keyword
         if (keyword !== null) {
             const cit = text.substring(j+1, text.length);
-            this._references.set(keyword, cit.trim());
+            this._references.set(keyword, cit);
+        }
+
+        // postprocess references
+        for (let [key, value] of this._references) {
+            this._references.set(key, postprocessCitation(value));
         }
 
         // filter references using results from SemanticScholar

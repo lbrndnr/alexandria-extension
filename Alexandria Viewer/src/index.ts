@@ -195,9 +195,7 @@ class PDFViewer {
 
         // const canvas = this.floatingFigure.querySelectorAll("canvas")[0] as HTMLCanvasElement;
         const ctx = this.floatingFigure.getContext("2d");
-        // const scale = this.doc.pageWidth/rect.width;
         const scale = this.doc.pageWidth/rect.width/2.0;
-        console.log(window.screen.availWidth, window.screen.width, this.doc.pageWidth/rect.width, scale, rect, this.doc.pageWidth, page.getViewport({scale: 1.0}).width);
         const viewport = page.getViewport({
             scale: scale,
             offsetX: -rect.x1*scale,

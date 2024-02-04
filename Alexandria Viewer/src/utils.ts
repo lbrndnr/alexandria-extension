@@ -87,11 +87,42 @@ export function appendTextItem(text: string, item: TextItem, appendNewLine: bool
     text += item.str;
     if (item.hasEOL) {
         if (appendNewLine) text += "\n";
-        else if (text.endsWith("-")) {
-            e -= 1;
-            text = text.slice(0, -1);
+        else {
+            if (text.endsWith("-")) {
+                e -= 1;
+                text = text.slice(0, -1);
+            }
+            e += 1;
+            text += " ";
         }
     }
 
     return [text, [s, e]];
+}
+
+export function postprocessCitation(cit: string): string {
+    // concatenate split up words
+    const re = /-\n/g;
+    cit = cit.replace(re, "");
+
+    // tentatively, concat all lines to find urls
+    const lines = cit.split("\n");
+    let newCit = "";
+    let i = 0, j = 0;
+    for (const [s, e] of iterateURLs(lines.join(""))) {
+        for (; i < lines.length; i++) {
+            // if a url is detected across lines, don't add whitespace
+            const sep = (j > s && j < e) ? "" : " ";
+
+            newCit += sep + lines[i];
+            j = newCit.length;
+        }
+    }
+
+    // add remaining lines in case there wasn't a URL
+    for (; i < lines.length; i++) {
+        newCit += " " + lines[i];
+    }
+
+    return newCit.trim();
 }
