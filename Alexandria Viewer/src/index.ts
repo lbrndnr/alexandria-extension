@@ -182,20 +182,61 @@ class PDFViewer {
         if (!this.floatingFigure) {
             this.floatingFigure = document.createElement("canvas");
             this.floatingFigure.setAttribute("class", "floatingFigure");
+            this.floatingFigure.style.left = "20px";
+            this.floatingFigure.style.top = "20px";
             this.container.appendChild(this.floatingFigure);
+
+            let offset = [0, 0];
+            const onmousemove = (event: MouseEvent) => {
+                this.floatingFigure.style.left = `${event.clientX - offset[0]}px`;
+                this.floatingFigure.style.top = `${event.clientY - offset[1]}px`;
+            };
+
+            this.floatingFigure.onmousedown = (event) => {
+                offset[0] = event.offsetX;
+                offset[1] = event.offsetY;
+                window.onmousemove = onmousemove;
+            }
+
+            this.floatingFigure.onmouseup = (event) => {
+                window.onmousemove = null;
+                this.floatingFigure.attributeStyleMap.delete("left");
+                this.floatingFigure.attributeStyleMap.delete("right");
+                this.floatingFigure.attributeStyleMap.delete("top");
+                this.floatingFigure.attributeStyleMap.delete("bottom");
+
+                if (event.clientX - offset[0] + this.floatingFigure.width/2.0 <= window.innerWidth/2.0) {
+                    this.floatingFigure.style.left = "20px";
+                }
+                else {
+                    console.log("rechts");
+                    this.floatingFigure.style.right = "20px";
+                }
+
+                if (event.clientY - offset[1] + this.floatingFigure.height/2.0 <= window.innerHeight/2.0) {
+                    this.floatingFigure.style.top = "20px";
+                }
+                else {
+                    this.floatingFigure.style.bottom = "20px";
+                }
+            };
 
             // const canvas = document.createElement("canvas");
             // this.floatingFigure.appendChild(canvas);
         }
 
-        this.floatingFigure.style.height = `calc(var(--scale-factor)*${rect.height}px)`;
-        this.floatingFigure.style.width = `calc(var(--scale-factor)*${rect.width}px)`;
+        this.floatingFigure.width = rect.width * window.devicePixelRatio;
+        this.floatingFigure.height = rect.height * window.devicePixelRatio;
+
+        this.floatingFigure.style.width = `calc(var(--scale-factor)*${this.floatingFigure.width}px)`;
+        this.floatingFigure.style.height = `calc(var(--scale-factor)*${this.floatingFigure.height}px)`;
 
         const page = await this.doc.pdf.getPage(pageNumber);
 
         // const canvas = this.floatingFigure.querySelectorAll("canvas")[0] as HTMLCanvasElement;
         const ctx = this.floatingFigure.getContext("2d");
         const scale = this.doc.pageWidth/rect.width/2.0;
+        console.log(this.doc.pageWidth, rect.width, this.viewer.currentScale);
         const viewport = page.getViewport({
             scale: scale,
             offsetX: -rect.x1*scale,

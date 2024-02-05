@@ -27,8 +27,10 @@
 
 #alexandria-pdf-container .floatingFigure {
     position: fixed;
-    left: 20px;
-    top: 20px;
+    left: auto;
+    top: auto;
+    right: auto;
+    bottom: auto;
     z-index: 2;
     max-width: 50%;
     max-height: 50%;
