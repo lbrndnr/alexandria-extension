@@ -196,10 +196,12 @@ class PDFViewer {
                 offset[0] = event.offsetX;
                 offset[1] = event.offsetY;
                 window.onmousemove = onmousemove;
+                this.floatingFigure.style.cursor = "grabbing";
             }
 
             this.floatingFigure.onmouseup = (event) => {
                 window.onmousemove = null;
+                this.floatingFigure.attributeStyleMap.delete("cursor");
                 this.floatingFigure.attributeStyleMap.delete("left");
                 this.floatingFigure.attributeStyleMap.delete("right");
                 this.floatingFigure.attributeStyleMap.delete("top");
