@@ -106,6 +106,8 @@ class PDFViewer {
         });
     }
 
+
+
     private _setDocumentTitle(text: string) {
         // In case we're in an iframe, set the top document's title too
         top.document.title = text;
@@ -223,22 +225,18 @@ class PDFViewer {
             };
         }
 
-        const pr = window.devicePixelRatio || 1.0;
-        this.floatingFigure.width = Math.floor(pr*rect.width);
-        this.floatingFigure.height = Math.floor(pr*rect.height);
-        this.floatingFigure.style.width = `${this.floatingFigure.width}px`;
-        this.floatingFigure.style.height = `${this.floatingFigure.height}px`;
-
         const pageCanvas = this.container.querySelectorAll(`div[data-page-number='${pageNumber}'] canvas`)[0] as HTMLCanvasElement;
         const cs = pageCanvas.width/this.doc.pageWidth;
 
+        const pr = window.devicePixelRatio || 1.0;
+        this.floatingFigure.width = Math.floor(cs*rect.width);
+        this.floatingFigure.height = Math.floor(cs*rect.height);
+        this.floatingFigure.style.width = `${pr * rect.width}px`;
+        this.floatingFigure.style.height = `${pr * rect.height}px`;
+
         const pageContext = pageCanvas.getContext("2d");
         const img = pageContext.getImageData(Math.floor(cs*rect.x1), Math.floor(pageCanvas.height-rect.y2*cs), Math.ceil(cs*rect.width), Math.ceil(cs*rect.height));
-        const ibm = await window.createImageBitmap(img, 0, 0, img.width, img.height, {
-            resizeWidth: this.floatingFigure.width,
-            resizeHeight: this.floatingFigure.height,
-            resizeQuality: "high"
-        });
+        const ibm = await window.createImageBitmap(img, 0, 0, img.width, img.height);
 
         const figureContext = this.floatingFigure.getContext("2d");
         figureContext.drawImage(ibm, 0, 0);

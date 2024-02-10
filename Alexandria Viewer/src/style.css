@@ -35,7 +35,7 @@
     max-width: 50%;
     max-height: 50%;
     border-radius: 10px;
-    filter: drop-shadow(black 0 0 10px);
+    filter: drop-shadow(black 0 0 5px);
     /* resize: both; */
     /* overflow: scroll; */
 }
