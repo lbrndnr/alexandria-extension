@@ -207,48 +207,41 @@ class PDFViewer {
                 this.floatingFigure.attributeStyleMap.delete("top");
                 this.floatingFigure.attributeStyleMap.delete("bottom");
 
-                if (event.clientX - offset[0] + this.floatingFigure.width/2.0 <= window.innerWidth/2.0) {
+                if (event.clientX - offset[0] + this.floatingFigure.clientWidth/2.0 <= window.innerWidth/2.0) {
                     this.floatingFigure.style.left = "20px";
                 }
                 else {
-                    console.log("rechts");
                     this.floatingFigure.style.right = "20px";
                 }
 
-                if (event.clientY - offset[1] + this.floatingFigure.height/2.0 <= window.innerHeight/2.0) {
+                if (event.clientY - offset[1] + this.floatingFigure.clientHeight/2.0 <= window.innerHeight/2.0) {
                     this.floatingFigure.style.top = "20px";
                 }
                 else {
                     this.floatingFigure.style.bottom = "20px";
                 }
             };
-
-            // const canvas = document.createElement("canvas");
-            // this.floatingFigure.appendChild(canvas);
         }
 
-        this.floatingFigure.width = rect.width * window.devicePixelRatio;
-        this.floatingFigure.height = rect.height * window.devicePixelRatio;
+        const pr = window.devicePixelRatio || 1.0;
+        this.floatingFigure.width = Math.floor(pr*rect.width);
+        this.floatingFigure.height = Math.floor(pr*rect.height);
+        this.floatingFigure.style.width = `${this.floatingFigure.width}px`;
+        this.floatingFigure.style.height = `${this.floatingFigure.height}px`;
 
-        this.floatingFigure.style.width = `calc(var(--scale-factor)*${this.floatingFigure.width}px)`;
-        this.floatingFigure.style.height = `calc(var(--scale-factor)*${this.floatingFigure.height}px)`;
+        const pageCanvas = this.container.querySelectorAll(`div[data-page-number='${pageNumber}'] canvas`)[0] as HTMLCanvasElement;
+        const cs = pageCanvas.width/this.doc.pageWidth;
 
-        const page = await this.doc.pdf.getPage(pageNumber);
-
-        // const canvas = this.floatingFigure.querySelectorAll("canvas")[0] as HTMLCanvasElement;
-        const ctx = this.floatingFigure.getContext("2d");
-        const scale = this.doc.pageWidth/rect.width/2.0;
-        console.log(this.doc.pageWidth, rect.width, this.viewer.currentScale);
-        const viewport = page.getViewport({
-            scale: scale,
-            offsetX: -rect.x1*scale,
-            offsetY: -(this.doc.pageHeight - rect.y2)*scale
+        const pageContext = pageCanvas.getContext("2d");
+        const img = pageContext.getImageData(Math.floor(cs*rect.x1), Math.floor(pageCanvas.height-rect.y2*cs), Math.ceil(cs*rect.width), Math.ceil(cs*rect.height));
+        const ibm = await window.createImageBitmap(img, 0, 0, img.width, img.height, {
+            resizeWidth: this.floatingFigure.width,
+            resizeHeight: this.floatingFigure.height,
+            resizeQuality: "high"
         });
 
-        page.render({
-            canvasContext: ctx,
-            viewport: viewport
-        });
+        const figureContext = this.floatingFigure.getContext("2d");
+        figureContext.drawImage(ibm, 0, 0);
     }
 
 }

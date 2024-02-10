@@ -254,9 +254,10 @@ export class AcademicDocumentProxy {
         const list = await page.getOperatorList();
         const rects = getFigureRects(list);
 
+        // overall, we offset by 10
         rects.forEach(r => r.inset(-50, -50));
         combineOverlappingRects(rects);
-        rects.forEach(r => r.inset(50, 50));
+        rects.forEach(r => r.inset(40, 40));
 
         return rects.filter(r => r.width > 50 && r.height > 50);
     }
