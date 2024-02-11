@@ -223,6 +223,10 @@ class PDFViewer {
                     this.floatingFigure.style.bottom = "20px";
                 }
             };
+
+            window.onresize = (e) => {
+                console.log(e);
+            };
         }
 
         const pageCanvas = this.container.querySelectorAll(`div[data-page-number='${pageNumber}'] canvas`)[0] as HTMLCanvasElement;
