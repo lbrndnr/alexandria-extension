@@ -14,13 +14,13 @@
 
 #alexandria-pdf-container .linkAnnotation {
     opacity: 0;
-    z-index: 5;
+    z-index: 100;
 }
 
 #alexandria-pdf-container .figureAnnotation {
     opacity: 0;
     position: absolute;
-    z-index: 5;
+    z-index: 100;
     cursor: pointer;
     pointer-events: auto;
 }
@@ -31,7 +31,7 @@
     top: auto;
     right: auto;
     bottom: auto;
-    z-index: 10;
+    z-index: 105;
     max-width: 50%;
     max-height: 50%;
     border-radius: 10px;
