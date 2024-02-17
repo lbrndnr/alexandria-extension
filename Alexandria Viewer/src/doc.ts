@@ -252,7 +252,10 @@ export class AcademicDocumentProxy {
     async loadFigures(pageNumber: number): Promise<Rect[]> {
         const page = await this.pdf.getPage(pageNumber);
         const list = await page.getOperatorList();
-        const rects = getFigureRects(list);
+        var rects = getFigureRects(list);
+
+        // filter out of bounds rect
+        rects = rects.filter(r => r.x1 >= 0 && r.x2 <= this.pageWidth && r.y1 >= 0 && r.y2 <= this.pageHeight);
 
         // overall, we offset by 10
         rects.forEach(r => r.inset(-50, -50));
