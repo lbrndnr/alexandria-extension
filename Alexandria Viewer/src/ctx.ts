@@ -69,7 +69,7 @@ export function getFigureRects(ops: PDFOperatorList): Rect[] {
     let ctm = gl.mat2d.create();
     let isVisible = false;
 
-    function _appendCurrentRect() {
+    function _commitCurrentRect() {
         if (xs.length > 0 && isVisible) {
             const r = _rectFromValues(xs, ys);
             if (r.height > 0 && r.width > 0) {
@@ -82,39 +82,44 @@ export function getFigureRects(ops: PDFOperatorList): Rect[] {
         isVisible = false;
     }
 
-    function _appendPointFromArgs(op: number, args: number[]) {
-        const pt = _pointFromArgs(op, args);
-        if (pt !== null) {
-            let [x, y] = pt;
+    function _appendPoints(pts: [number, number][]) {
+        for (let [x, y] of pts) {
             [x, y] = _transformPoint(x, y, ctm);
             xs.push(x), ys.push(y);
         }
     }
 
+    function _appendPointFromArgs(op: number, args: number[]) {
+        const pt = _pointFromArgs(op, args);
+        if (pt !== null) {
+            _appendPoints([pt]);
+        }
+    }
+
     for (const [op, args] of _iterateOperations(ops)) {
         if (op == OPS.moveTo) {
-            _appendCurrentRect();
+            _commitCurrentRect();
             _appendPointFromArgs(op, args);
         }
         else if (op == OPS.closePath || op == OPS.endPath) {
-            _appendCurrentRect();
+            _commitCurrentRect();
         }
         else if (op == OPS.stroke || op == OPS.fill || op == OPS.eoFill || op == OPS.eoFillStroke) {
             isVisible = true;
         }
         else if (op == OPS.closeFillStroke || op == OPS.closeStroke || op == OPS.closeEOFillStroke) {
             isVisible = true;
-            _appendCurrentRect();
+            _commitCurrentRect();
         }
         else if (op == OPS.save) {
             state.push(gl.mat2d.clone(ctm));
         }
         else if (op == OPS.restore) {
-            ctm = state.pop() ?? gl.mat2d.create();
+            ctm = state.pop() ?? ctm;
         }
         else if (op == OPS.transform) {
             const transform = gl.mat2d.fromValues(args[0], args[1], args[2], args[3], args[4], args[5]);
-            gl.mat2d.mul(ctm, transform, ctm);
+            gl.mat2d.mul(ctm, ctm, transform);
         }
         else if (op == OPS.constructPath) {
             throw new Error("constructPath not valid in flattened operator list");
@@ -124,20 +129,14 @@ export function getFigureRects(ops: PDFOperatorList): Rect[] {
             const y1 = (ys.length > 0) ? ys[ys.length-1] : 0;
 
             const r = new Rect(x1, y1, x1+args[0], y1+args[1]);
-            for (let [x, y] of r.coords) { 
-                [x, y] = _transformPoint(x, y, ctm);
-                xs.push(x), ys.push(y);
-            }
+            _appendPoints(r.coords);
         }
         else if (op == OPS.rectangle) {
-            _appendCurrentRect();
+            _commitCurrentRect();
             
             let r = new Rect(args[0], args[0] + args[2], args[1], args[1] + args[3]);             
-            for (let [x, y] of r.coords) {
-                [x, y] = _transformPoint(x, y, ctm);
-                xs.push(x), ys.push(y);
-            }
-            _appendCurrentRect();
+            _appendPoints(r.coords);
+            _commitCurrentRect();
         }
         else {
             _appendPointFromArgs(op, args);
@@ -145,7 +144,7 @@ export function getFigureRects(ops: PDFOperatorList): Rect[] {
     }
 
     // append the last rect, in case the path wasn't closed
-    _appendCurrentRect();
+    _commitCurrentRect();
 
     return rects;
 }

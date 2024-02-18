@@ -1,5 +1,5 @@
 import { iteratePattern, postprocessCitation, appendTextItem, Rect } from "./utils";
-import { PDFDocumentProxy, OPS } from "pdfjs-dist";
+import { PDFDocumentProxy, OPS, PDFPageProxy } from "pdfjs-dist";
 import { TextItem, PDFOperatorList } from "pdfjs-dist/types/src/display/api";
 import { SemanticScholar, Paper } from 'semanticscholarjs';
 import { getFigureRects, combineOverlappingRects } from "./ctx";
@@ -18,6 +18,14 @@ export class AcademicDocumentProxy {
 
     constructor(pdf: PDFDocumentProxy) {
         this.pdf = pdf;
+    }
+
+    private async _loadPage(pageNumber: number): Promise<PDFPageProxy> {
+        const page = await this.pdf.getPage(pageNumber);
+        if (this.pageHeight === undefined) this.pageHeight = page.view[3] - page.view[1];
+        if (this.pageWidth === undefined) this.pageWidth = page.view[2] - page.view[0];
+
+        return page;
     }
 
     private async _loadMeta(query: string) {
@@ -144,10 +152,8 @@ export class AcademicDocumentProxy {
 
     private async *_iterateHorizontalTextItems(start: number, end: number): AsyncGenerator<TextItem, void, void> {
         for (let i = start; i <= end; i++) {
-            const page = await this.pdf.getPage(i);
+            const page = await this._loadPage(i);
             const textContent = await page.getTextContent();
-            if (this.pageHeight === undefined) this.pageHeight = page.view[3] - page.view[1];
-            if (this.pageWidth === undefined) this.pageWidth = page.view[2] - page.view[0];
         
             for (const elem of textContent.items) {
                 const item = elem as TextItem;
@@ -250,7 +256,7 @@ export class AcademicDocumentProxy {
     }
 
     async loadFigures(pageNumber: number): Promise<Rect[]> {
-        const page = await this.pdf.getPage(pageNumber);
+        const page = await this._loadPage(pageNumber);
         const list = await page.getOperatorList();
         var rects = getFigureRects(list);
 
@@ -271,7 +277,7 @@ export class AcademicDocumentProxy {
             return resolvedFontName;
         }
 
-        const page = await this.pdf.getPage(pageNumber);
+        const page = await this._loadPage(pageNumber);
         resolvedFontName = page.commonObjs.get(fontName).name;
         this._fontNames.set(fontName, resolvedFontName);
 
